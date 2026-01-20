@@ -321,9 +321,6 @@ class SortingGUI:
             elapsed = time.time() - start_time
             
             self.append_output(f"Status: ✓ COMPLETED\n", "success")
-            self.append_output(f"Time Taken: ", "info")
-            self.append_output(f"{elapsed:.6f} seconds\n", "time")
-            self.append_output(f"Dataset Size: {len(data_copy)} numbers\n", "info")
             self.append_output(f"\nAll Sorted Elements (Descending):\n", "header")
             self.append_output(f"{'-'*60}\n", "info")
             
@@ -333,7 +330,10 @@ class SortingGUI:
                 row = data_descending[i:i+20]
                 self.append_output(f"{str(row)[1:-1]}\n", "info")
             
-            self.append_output(f"{'-'*60}\n\n", "info")
+            self.append_output(f"{'-'*60}\n", "info")
+            self.append_output(f"Time Taken: ", "info")
+            self.append_output(f"{elapsed:.6f} seconds\n", "time")
+            self.append_output(f"Dataset Size: {len(data_copy)} numbers\n\n", "info")
             
             self.update_status(f"✓ {sort_type.capitalize()} Sort completed in {elapsed:.6f} seconds")
             
