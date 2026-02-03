@@ -68,3 +68,19 @@ It demonstrates the performance difference between **O(n²)** algorithms (Bubble
 
 - Sorting algorithms are **implemented from scratch**; no built-in `.sort()` or `sorted()` is used  
 - Bubble Sort and Insertion Sort can be slow on large datasets  
+
+## Time Benchmark (Total)
+1,000 Rows
+1. Bubble Sort - 0.4340s
+2. Merge Sort - 0.4421s
+3. Insertion Sort - 0.4137s
+
+10,000 Rows
+1. Bubble Sort - 9.1522s
+2. Merge Sort - 3.7654s
+3. Insertion Sort - 6.5705s
+
+100,000 Rows
+1. Bubble Sort - 434.1950s
+2. Merge Sort - 38.1100s
+3. Insertion Sort - 444.1477s
