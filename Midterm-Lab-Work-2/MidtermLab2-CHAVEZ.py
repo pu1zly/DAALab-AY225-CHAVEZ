@@ -182,12 +182,16 @@ class TravelingSalesmanApp(tk.Tk):
         plot_panel = ttk.LabelFrame(output_frame, text="Graph View")
         plot_panel.pack(side="left", fill="both", expand=True, padx=(0, 6))
 
-        self.figure = Figure(figsize=(6.3, 5), dpi=100)
+        # Create figure without fixed size so it responds to window resizing
+        self.figure = Figure(dpi=100)
         self.ax = self.figure.add_subplot(111)
         self.ax.axis("off")
 
         self.canvas = FigureCanvasTkAgg(self.figure, master=plot_panel)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        
+        # Bind window resize event to redraw graph responsively
+        self.bind("<Configure>", lambda e: self._draw_graph())
 
         # Right: output area
         info_panel = ttk.LabelFrame(output_frame, text="Shortest Path Output")
@@ -216,13 +220,24 @@ class TravelingSalesmanApp(tk.Tk):
         # Layout and draw using fixed positions to reduce overlap and match the
         # expected visual layout from the assignment screenshot.
         pos = NODE_POSITIONS
+        
+        # Calculate responsive sizing based on figure size
+        fig_width = self.figure.get_figwidth()
+        fig_height = self.figure.get_figheight()
+        # Scale factor based on figure dimensions (normalized to ~6-8 inch figure)
+        scale_factor = (fig_width + fig_height) / 14.0
+        
+        # Responsive sizes
+        responsive_node_size = int(1100 * scale_factor)
+        responsive_node_label_size = max(7, int(10 * scale_factor))
+        responsive_edge_label_size = max(7, int(10 * scale_factor))
 
         # Draw nodes and labels
         nx.draw_networkx_nodes(
             self.graph,
             pos,
             ax=self.ax,
-            node_size=1100,
+            node_size=responsive_node_size,
             node_color="#88ccee",
             edgecolors="#333333",
             linewidths=1.2,
@@ -231,7 +246,7 @@ class TravelingSalesmanApp(tk.Tk):
             self.graph,
             pos,
             ax=self.ax,
-            font_size=10,
+            font_size=responsive_node_label_size,
             font_weight="bold",
             font_family="sans-serif",
             bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="gray", alpha=0.8),
@@ -277,7 +292,7 @@ class TravelingSalesmanApp(tk.Tk):
             self.graph,
             pos,
             edge_labels=edge_labels,
-            font_size=10,
+            font_size=responsive_edge_label_size,
             font_weight="bold",
             label_pos=0.42,
             rotate=False,
