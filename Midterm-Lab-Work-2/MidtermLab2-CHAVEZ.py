@@ -34,6 +34,7 @@ except ImportError as e:
 # ---------------------------------------------------------------------------
 
 # Each tuple is: (from_node, to_node, distance_km, time_min, fuel_liters)
+# EDIT EDGE LABEL DISTANCES HERE: Modify the distance_km value (3rd element in each tuple)
 EDGE_DATA = [
     ("IMUS", "BACOOR", 10, 15, 1.2),
     ("BACOOR", "DASMA", 12, 25, 1.5),
@@ -73,6 +74,11 @@ def build_graph() -> nx.Graph:
     The table includes bidirectional road entries (e.g., IMUS->NOVELETA and
     NOVELETA->IMUS). To avoid drawing duplicate lines, we treat the network as
     undirected and merge duplicate edges.
+    
+    Edits/Changes:
+    - Creates and returns an undirected NetworkX graph
+    - Adds all nodes from EDGE_DATA to the graph
+    - Adds edges with attributes: distance, time, fuel, and label (formatted string)
     """
 
     G = nx.Graph()
@@ -97,7 +103,16 @@ def build_graph() -> nx.Graph:
 
 
 def shortest_path(graph: nx.Graph, start: str, end: str, weight: str):
-    """Return shortest path and aggregated values for the chosen weight."""
+    """Return shortest path and aggregated values for the chosen weight.
+    
+    Uses Dijkstra's algorithm to find the optimal path between two nodes.
+    
+    Edits/Changes:
+    - Validates that start and end nodes exist in the graph
+    - Computes shortest path using the specified weight (distance)
+    - Calculates totals for all three metrics (distance, time, fuel) along the path
+    - Returns the path as a list of nodes and a dictionary of aggregated totals
+    """
 
     if start not in graph or end not in graph:
         raise KeyError("Start or end node not in graph")
@@ -122,7 +137,7 @@ class TravelingSalesmanApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Node Map + Shortest Path Explorer")
-        self.geometry("980x660")
+        self.state('zoomed')  # Start in maximized/fullscreen windowed mode
         self.resizable(True, True)
 
         self.graph = build_graph()
@@ -131,6 +146,11 @@ class TravelingSalesmanApp(tk.Tk):
 
     def _create_widgets(self):
         # Controls frame
+        # Edits/Changes:
+        # - Creates control panel with start/end node dropdowns
+        # - Adds "Redraw Graph" and "Find Shortest Path" buttons
+        # - Creates matplotlib canvas for graph visualization
+        # - Creates text widget for displaying results
         control_frame = ttk.Frame(self, padding=(10, 10, 10, 0))
         control_frame.pack(side="top", fill="x")
 
@@ -148,21 +168,11 @@ class TravelingSalesmanApp(tk.Tk):
         self.end_entry.grid(row=0, column=3, padx=(4, 14))
         self.end_entry.set(NODE_LABELS[1])
 
-        ttk.Label(control_frame, text="Optimize by:").grid(row=0, column=4, sticky="w")
-        self.criteria_combo = ttk.Combobox(
-            control_frame,
-            values=["distance", "time", "fuel"],
-            width=12,
-            state="readonly",
-        )
-        self.criteria_combo.grid(row=0, column=5, padx=(4, 14))
-        self.criteria_combo.set("distance")
-
         draw_btn = ttk.Button(control_frame, text="Redraw Graph", command=self._draw_graph)
-        draw_btn.grid(row=0, column=6, padx=(4, 4))
+        draw_btn.grid(row=0, column=4, padx=(4, 4))
 
         run_btn = ttk.Button(control_frame, text="Find Shortest Path", command=self._on_run)
-        run_btn.grid(row=0, column=7, padx=(4, 4))
+        run_btn.grid(row=0, column=5, padx=(4, 4))
 
         # Output and plot
         output_frame = ttk.Frame(self, padding=(10, 0, 10, 10))
@@ -189,7 +199,16 @@ class TravelingSalesmanApp(tk.Tk):
         self.output_text.pack(fill="both", expand=True, padx=6, pady=6)
 
     def _draw_graph(self, highlight_path=None):
-        """Render the graph in the matplotlib figure."""
+        """Render the graph in the matplotlib figure.
+        
+        Edits/Changes:
+        - Clears the previous graph from the canvas
+        - Draws all nodes (light blue circles) with labels
+        - Draws all edges (gray lines for normal, red for highlighted path)
+        - Adds edge labels showing distance, time, and fuel for each edge
+        - Adds a legend to distinguish shortest path from other routes
+        - Refreshes the canvas to display the updated visualization
+        """
 
         self.ax.clear()
         self.ax.axis("off")
@@ -219,9 +238,8 @@ class TravelingSalesmanApp(tk.Tk):
         )
 
         # Title with criteria information
-        criteria = self.criteria_combo.get().capitalize()
         self.ax.set_title(
-            f"Node Map (optimize by {criteria})",
+            "Node Map - Shortest Path Explorer",
             fontsize=12,
             fontweight="bold",
             pad=14,
@@ -250,6 +268,8 @@ class TravelingSalesmanApp(tk.Tk):
         )
 
         # Edge labels (distance/time/fuel)
+        # NOTE: Edit edge distances in EDGE_DATA at line ~40-53 (3rd element of each tuple)
+        # The label format shows: distance_km\ntime_min\nfuel_liters
         edge_labels = {
             (u, v): self.graph[u][v]["label"] for u, v in self.graph.edges()
         }
@@ -257,7 +277,8 @@ class TravelingSalesmanApp(tk.Tk):
             self.graph,
             pos,
             edge_labels=edge_labels,
-            font_size=7,
+            font_size=10,
+            font_weight="bold",
             label_pos=0.42,
             rotate=False,
             ax=self.ax,
@@ -298,9 +319,16 @@ class TravelingSalesmanApp(tk.Tk):
         self.canvas.draw_idle()
 
     def _on_run(self):
+        # Event handler for "Find Shortest Path" button
+        # Edits/Changes:
+        # - Retrieves selected start and end nodes from dropdowns
+        # - Validates inputs (different nodes, exists in graph)
+        # - Calls shortest_path() to compute the optimal route
+        # - Updates output text box with results
+        # - Highlights the shortest path in red on the graph
         start = self.start_entry.get().strip().upper()
         end = self.end_entry.get().strip().upper()
-        criteria = self.criteria_combo.get().strip().lower()
+        criteria = "distance"
 
         if start == end:
             messagebox.showinfo(
@@ -331,7 +359,14 @@ class TravelingSalesmanApp(tk.Tk):
         self._draw_graph(highlight_path=highlight_edges)
 
     def _write_output(self, *args):
-        """Write the result into the output text box."""
+        """Write the result into the output text box.
+        
+        Edits/Changes:
+        - Clears previous output from text widget
+        - Displays the shortest path as a sequence of nodes
+        - Shows total distance, time, and fuel consumption for the route
+        - Disables text box to prevent user editing
+        """
 
         self.output_text.configure(state="normal")
         self.output_text.delete("1.0", "end")
@@ -353,6 +388,11 @@ class TravelingSalesmanApp(tk.Tk):
 
 
 def main():
+    # Entry point for the application
+    # Edits/Changes:
+    # - Creates root Tkinter window
+    # - Initializes TravelingSalesmanApp GUI
+    # - Starts the event loop to handle user interactions
     app = TravelingSalesmanApp()
     app.mainloop()
 
