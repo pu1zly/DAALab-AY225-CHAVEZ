@@ -129,6 +129,28 @@ def shortest_path(graph: nx.Graph, start: str, end: str, weight: str):
     return path, totals
 
 
+def compare_all_metrics(graph: nx.Graph, start: str, end: str):
+    """Compare shortest paths for all three metrics (distance, time, fuel).
+    
+    Edits/Changes:
+    - Computes shortest paths for distance, time, and fuel separately
+    - Returns all three paths and their respective totals
+    - Allows user to see which metric gives the best result
+    """
+    
+    results = {}
+    metrics = ["distance", "time", "fuel"]
+    
+    for metric in metrics:
+        try:
+            path, totals = shortest_path(graph, start, end, weight=metric)
+            results[metric] = {"path": path, "totals": totals}
+        except nx.NetworkXNoPath:
+            results[metric] = {"path": None, "totals": None}
+    
+    return results
+
+
 # ---------------------------------------------------------------------------
 # GUI
 # ---------------------------------------------------------------------------
@@ -168,11 +190,21 @@ class TravelingSalesmanApp(tk.Tk):
         self.end_entry.grid(row=0, column=3, padx=(4, 14))
         self.end_entry.set(NODE_LABELS[1])
 
+        ttk.Label(control_frame, text="Optimize by:").grid(row=0, column=4, sticky="w")
+        self.criteria_combo = ttk.Combobox(
+            control_frame,
+            values=["distance", "time", "fuel"],
+            width=12,
+            state="readonly",
+        )
+        self.criteria_combo.grid(row=0, column=5, padx=(4, 14))
+        self.criteria_combo.set("distance")
+
         draw_btn = ttk.Button(control_frame, text="Redraw Graph", command=self._draw_graph)
-        draw_btn.grid(row=0, column=4, padx=(4, 4))
+        draw_btn.grid(row=0, column=6, padx=(4, 4))
 
         run_btn = ttk.Button(control_frame, text="Find Shortest Path", command=self._on_run)
-        run_btn.grid(row=0, column=5, padx=(4, 4))
+        run_btn.grid(row=0, column=7, padx=(4, 4))
 
         # Output and plot
         output_frame = ttk.Frame(self, padding=(10, 0, 10, 10))
@@ -253,8 +285,9 @@ class TravelingSalesmanApp(tk.Tk):
         )
 
         # Title with criteria information
+        criteria = self.criteria_combo.get().capitalize()
         self.ax.set_title(
-            "Node Map - Shortest Path Explorer",
+            f"Node Map (optimize by {criteria})",
             fontsize=12,
             fontweight="bold",
             pad=14,
@@ -343,7 +376,7 @@ class TravelingSalesmanApp(tk.Tk):
         # - Highlights the shortest path in red on the graph
         start = self.start_entry.get().strip().upper()
         end = self.end_entry.get().strip().upper()
-        criteria = "distance"
+        criteria = self.criteria_combo.get().strip().lower()
 
         if start == end:
             messagebox.showinfo(
@@ -397,7 +430,13 @@ class TravelingSalesmanApp(tk.Tk):
             self.output_text.insert("end", f"  Path: {' -> '.join(path)}\n")
             self.output_text.insert("end", f"  Total Distance: {totals['distance']} km\n")
             self.output_text.insert("end", f"  Total Time: {totals['time']} mins\n")
-            self.output_text.insert("end", f"  Total Fuel: {totals['fuel']:.2f} L\n")
+            self.output_text.insert("end", f"  Total Fuel: {totals['fuel']:.2f} L\n\n")
+            
+            # Display comparison of all metrics
+            self.output_text.insert("end", "All Metrics Comparison:\n")
+            self.output_text.insert("end", f"  Distance: {totals['distance']} km\n")
+            self.output_text.insert("end", f"  Time: {totals['time']} mins\n")
+            self.output_text.insert("end", f"  Fuel: {totals['fuel']:.2f} L\n")
 
         self.output_text.configure(state="disabled")
 
