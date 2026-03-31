@@ -1,5 +1,6 @@
 import os
 import itertools
+import math
 
 try:
     import pandas as pd
@@ -163,7 +164,7 @@ class TSPApp:
         # Results Panel at the bottom
         results_frame = ttk.Frame(self.root, padding="10")
         results_frame.pack(side=tk.BOTTOM, fill=tk.X)
-        self.result_label = ttk.Label(results_frame, text="", font=("Arial", 14, "bold"), foreground="blue", justify="center")
+        self.result_label = ttk.Label(results_frame, text="", font=("Arial", 12, "bold"), foreground="blue", justify="center")
         self.result_label.pack(side=tk.TOP, pady=10)
 
     def update_view(self, metric=None):
@@ -201,19 +202,40 @@ class TSPApp:
         else:
             best_route = None
 
-        # Positions for all nodes
-        pos = nx.spring_layout(G, seed=42)
+        # Positions for all nodes - circular layout
+        pos = {}
+        nodes_sorted = sorted(G.nodes())
+        n_nodes = len(nodes_sorted)
+        for i, node in enumerate(nodes_sorted):
+            angle = 2 * math.pi * i / n_nodes
+            pos[node] = (2.5 * math.cos(angle), 2.5 * math.sin(angle))
         
         # Draw all nodes
-        nx.draw_networkx_nodes(G, pos, ax=self.ax, node_color='#CCE5FF', node_size=1000, 
-                               edgecolors='black', linewidths=1.5)
-        nx.draw_networkx_labels(G, pos, ax=self.ax, font_size=14, font_weight="bold")
+        nx.draw_networkx_nodes(G, pos, ax=self.ax, node_color='#CCE5FF', node_size=1500, 
+                               edgecolors='black', linewidths=2)
+        nx.draw_networkx_labels(G, pos, ax=self.ax, font_size=18, font_weight="bold")
         
-        # Draw background edges with fading format and curvature to avoid overlapping
+        # Draw background edges with curvature
         all_edges = G.edges()
         nx.draw_networkx_edges(G, pos, ax=self.ax, edgelist=all_edges, edge_color='lightgray', 
-                               alpha=0.4, arrows=True, connectionstyle='arc3, rad=0.15', 
-                               arrowsize=12, width=1.0)
+                               alpha=0.5, arrows=True, connectionstyle='arc3, rad=0.2', 
+                               arrowsize=20, width=1.5)
+        
+        # Add edge labels with weight values - positioned away from center
+        # Only show labels for one direction per edge pair to avoid duplicates
+        edge_labels = {}
+        seen_pairs = set()
+        for u, v in G.edges():
+            edge_pair = tuple(sorted([u, v]))
+            if edge_pair not in seen_pairs:
+                weight = G[u][v]['weight']
+                edge_labels[(u, v)] = f"{weight:.1f}"
+                seen_pairs.add(edge_pair)
+        
+        nx.draw_networkx_edge_labels(G, pos, ax=self.ax, edge_labels=edge_labels, 
+                                     font_size=12, font_color='darkblue', font_weight='bold',
+                                     bbox=dict(boxstyle='round,pad=0.2', facecolor='lightyellow', alpha=0.85, edgecolor='gray', linewidth=0.5),
+                                     label_pos=0.3)
         
         # Highlight best path
         if best_route:
@@ -221,17 +243,27 @@ class TSPApp:
             path_edges = [(best_route[i], best_route[i+1]) for i in range(len(best_route)-1)]
             
             # Draw prominent glowing arrows for the optimized path
-            nx.draw_networkx_edges(G, pos, ax=self.ax, edgelist=path_edges, edge_color='red', 
-                                   width=3.5, arrows=True, arrowsize=30, 
-                                   connectionstyle='arc3, rad=0.15', min_target_margin=15)
+            nx.draw_networkx_edges(G, pos, ax=self.ax, edgelist=path_edges, edge_color='#e41a1c', 
+                                   width=4.5, arrows=True, arrowsize=30, 
+                                   connectionstyle='arc3, rad=0.2', min_target_margin=15)
             
             idx = self.current_route_idx[metric]
             total_r = len(best_routes)
+            
+            # Build edge weights string
+            edge_weights = []
+            for i in range(len(best_route)-1):
+                u, v = best_route[i], best_route[i+1]
+                weight = G[u][v]['weight']
+                edge_weights.append(f"{u}→{v}: {weight:.1f}")
+            edges_str = ", ".join(edge_weights)
+            
             if total_r > 1:
-                route_str = f"{total_r} Optimal Routes Found!\nShowing Option {idx+1}/{total_r}:  {' ➔ '.join(map(str, best_route))}\nTotal {labels[metric]}: {cost:.2f}"
+                route_str = f"{total_r} Optimal Routes Found!\nShowing Option {idx+1}/{total_r}:  {' ➔ '.join(map(str, best_route))}\nEdge Weights: {edges_str}\nTotal {labels[metric]}: {cost:.2f}"
                 self.result_label.config(text=route_str)
             else:
-                self.result_label.config(text=f"Optimal Route:\n{' ➔ '.join(map(str, best_route))}\nTotal {labels[metric]}: {cost:.2f}")
+                route_str = f"Optimal Route:\n{' ➔ '.join(map(str, best_route))}\nEdge Weights: {edges_str}\nTotal {labels[metric]}: {cost:.2f}"
+                self.result_label.config(text=route_str)
         else:
             self.result_label.config(text=f"No complete cycle found for {labels[metric]}.")
             
