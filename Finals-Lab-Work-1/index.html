@@ -49,8 +49,31 @@
   .badge-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
 
   /* STATUS BAR */
-  .status-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding: 10px 14px; background: var(--bg2); border: 1px solid #052e16; border-radius: 8px; font-size: 11px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .status-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 12px 16px; background: var(--bg2); border: 1px solid #052e16; border-radius: 8px; font-size: 13px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .status-right { margin-left: auto; }
+  .back-upload-btn {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    border: 1px solid #93c5fd;
+    color: #021226;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(96,165,250,.2), 0 8px 20px rgba(30,64,175,.35);
+    transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .back-upload-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(147,197,253,.55), 0 10px 24px rgba(30,64,175,.45);
+  }
+  .back-upload-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 0 0 1px rgba(147,197,253,.45), 0 6px 14px rgba(30,64,175,.35);
+  }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
   /* TABS */
@@ -206,6 +229,9 @@
   <div class="status-bar">
     <div class="status-dot"></div>
     <span id="status-text">Dataset loaded successfully</span>
+    <div class="status-right">
+      <button class="back-upload-btn" onclick="goToUpload()">Back to Upload</button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -604,6 +630,17 @@ function switchTab(id, btn) {
 
   if (id === 'overview') animateOverviewElements();
   if (id === 'distribution') animateDistributionElements();
+}
+
+function goToUpload() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('filename').textContent = 'student_mental_health_burnout.csv';
+  document.getElementById('filestatus').textContent = 'Upload your CSV file to explore the dataset';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-txt').textContent = 'Reading file...';
+  document.getElementById('file-input').value = '';
 }
 </script>
 </body>
