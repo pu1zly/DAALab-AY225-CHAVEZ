@@ -81,6 +81,11 @@
   .bar-track { background: var(--bg3); border-radius: 5px; height: 12px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
 
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   /* DONUT CHARTS */
   .donut-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
   .donut-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; min-height: 340px; }
@@ -91,6 +96,10 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #cbd5e1; }
   .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .legend-metric { color: var(--subtle); font-size: 12px; }
+
+  .animate-rise {
+    animation: riseIn .5s ease both;
+  }
 
   /* TABLE */
   .table-wrap { overflow: auto; max-height: 72vh; border-radius: 10px; border: 1px solid var(--border); }
@@ -108,12 +117,19 @@
   .search-input::placeholder { color: var(--muted); }
 
   /* COLUMNS GRID */
-  .col-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-  .col-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-  .col-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-  .col-name { font-size: 12px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .col-type { font-size: 10px; margin-top: 2px; }
-  .col-num { font-size: 10px; color: #475569; margin-left: auto; }
+  .columns-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .columns-title { font-size: 16px; font-weight: 700; color: #f8fafc; letter-spacing: .3px; }
+  .columns-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .columns-kpis { display: flex; gap: 8px; flex-wrap: wrap; }
+  .kpi-chip { background: #0b1326; border: 1px solid var(--border2); color: #cbd5e1; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 600; }
+  .kpi-chip span { color: #f8fafc; margin-right: 4px; }
+  .col-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .col-card { background: linear-gradient(180deg, #0d172b 0%, #0b1324 100%); border: 1px solid #23314b; border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; transition: transform .15s ease, border-color .15s ease; }
+  .col-card:hover { transform: translateY(-1px); border-color: #3b82f6; }
+  .col-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .col-name { font-size: 13px; font-weight: 700; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px; }
+  .col-type { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 999px; border: 1px solid currentColor; text-transform: uppercase; letter-spacing: .5px; width: fit-content; }
+  .col-num { font-size: 11px; color: #94a3b8; font-weight: 700; min-width: 38px; text-align: right; }
 
   /* UPLOAD AREA */
   .upload-area { border: 2px dashed var(--border2); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: border-color .2s; margin-bottom: 20px; }
@@ -225,7 +241,19 @@
 
   <!-- COLUMNS -->
   <div id="panel-columns" class="panel">
-    <input class="search-input" id="col-search" placeholder="🔍  Search columns..." oninput="filterCols()" />
+    <div class="columns-head">
+      <div>
+        <div class="columns-title">Column Dictionary</div>
+        <div class="columns-sub" id="columns-sub">Analyze structure and data types</div>
+      </div>
+      <div class="columns-kpis">
+        <div class="kpi-chip"><span id="kpi-total">0</span>total</div>
+        <div class="kpi-chip"><span id="kpi-num">0</span>numeric</div>
+        <div class="kpi-chip"><span id="kpi-cat">0</span>categorical</div>
+        <div class="kpi-chip"><span id="kpi-id">0</span>id</div>
+      </div>
+    </div>
+    <input class="search-input" id="col-search" placeholder="Search columns..." oninput="filterCols()" />
     <div class="col-grid" id="col-grid"></div>
   </div>
 </div>
@@ -242,6 +270,15 @@ const COLORS = {
   "1st":"#60a5fa","2nd":"#818cf8","3rd":"#a78bfa","4th":"#c084fc"
 };
 const PALETTE = ["#60a5fa","#a78bfa","#f472b6","#f59e0b","#22c55e","#06b6d4","#f97316","#84cc16","#ec4899","#14b8a6"];
+const COLOR_INDEX = Object.fromEntries(
+  Object.entries(COLORS).map(([k, v]) => [k.toLowerCase().replace(/\s+/g, ''), v])
+);
+
+function colorForLabel(label, index = 0, useFallback = true) {
+  const key = String(label || '').trim().toLowerCase().replace(/\s+/g, '');
+  if (COLOR_INDEX[key]) return COLOR_INDEX[key];
+  return useFallback ? PALETTE[index % PALETTE.length] : '';
+}
 
 // ── FILE HANDLING ──────────────────────────────────────
 const dropZone = document.getElementById('drop-zone');
@@ -365,7 +402,7 @@ function renderOverview() {
     { label:'Total Columns', val: DS.headers.length, icon:'📋', color:'#a78bfa' },
     { label:'Numeric Columns', val: numericCount, icon:'🔢', color:'#22c55e' },
     { label:'Categorical Cols', val: catCount, icon:'🏷️', color:'#f59e0b' },
-  ].map(c=>`<div class="stat-card"><div class="stat-icon">${c.icon}</div><div><div class="stat-val" style="color:${c.color}">${c.val}</div><div class="stat-lbl">${c.label}</div></div></div>`).join('');
+  ].map(c=>`<div class="stat-card"><div class="stat-icon">${c.icon}</div><div><div class="stat-val" style="color:${c.color}" data-count="${Number(String(c.val).replace(/,/g,''))}">0</div><div class="stat-lbl">${c.label}</div></div></div>`).join('');
 
   // bar charts for top categoricals
   const cg = document.getElementById('chart-grid');
@@ -375,11 +412,13 @@ function renderOverview() {
     const maxVal = Math.max(...Object.values(data));
     const bars = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([lbl,v],i)=>`
       <div class="bar-row">
-        <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val">${v.toLocaleString()}</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:${(v/maxVal*100).toFixed(1)}%;background:${COLORS[lbl]||PALETTE[i%PALETTE.length]}"></div></div>
+        <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val" data-count="${v}">0</span></div>
+        <div class="bar-track"><div class="bar-fill" data-width="${(v/maxVal*100).toFixed(1)}" style="width:0%;background:${colorForLabel(lbl, i)}"></div></div>
       </div>`).join('');
     return `<div class="chart-box"><div class="chart-title">${k.replace(/_/g,' ')}</div>${bars}</div>`;
   }).join('');
+
+  animateOverviewElements();
 }
 
 // DISTRIBUTION (donuts via SVG)
@@ -391,27 +430,85 @@ function renderDistribution() {
     const topEntry = entries[0] || ['N/A', 0];
     let cum = 0;
     const paths = entries.map(([lbl,v],i) => {
-      const pct = v/total; const start = cum; cum += pct;
-      const color = COLORS[lbl] || PALETTE[i%PALETTE.length];
-      return `<path d="${arc(start, start+pct)}" fill="${color}" stroke="#0f172a" stroke-width="1"/>`;
+      const pct = v / total;
+      const start = cum;
+      cum += pct;
+      const color = colorForLabel(lbl, i);
+      return `<path d="${arc(start, start + pct)}" fill="${color}" stroke="#0f172a" stroke-width="1"></path>`;
     }).join('');
     const legend = entries.map(([lbl,v],i) => {
-      const color = COLORS[lbl]||PALETTE[i%PALETTE.length];
-      return `<div class="legend-item"><div class="legend-dot" style="background:${color}"></div>${lbl} <span class="legend-metric">${v.toLocaleString()} (${(v/total*100).toFixed(0)}%)</span></div>`;
+      const color = colorForLabel(lbl, i);
+      const pct = (v / total * 100);
+      return `<div class="legend-item"><div class="legend-dot" style="background:${color}"></div>${lbl} <span class="legend-metric"><span class="legend-count" data-count="${v}">0</span> (<span class="legend-pct" data-count="${pct.toFixed(0)}">0</span>%)</span></div>`;
     }).join('');
     return `<div class="donut-box">
       <div class="donut-title">${key.replace(/_/g,' ')}</div>
       <svg viewBox="0 0 100 100" style="width:160px;height:160px;display:block;margin:0 auto">
         ${paths}
         <circle cx="50" cy="50" r="22" fill="#0f172a"/>
-        <text x="50" y="56" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold" font-family="monospace">${entries.length}</text>
+        <text x="50" y="56" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold" font-family="monospace" class="donut-types-count" data-count="${entries.length}">0</text>
         <text x="50" y="44" text-anchor="middle" fill="#64748b" font-size="8" font-family="monospace">types</text>
       </svg>
-      <div class="donut-desc">Total: ${total.toLocaleString()} records · Top: ${topEntry[0]} (${((topEntry[1] / total) * 100 || 0).toFixed(1)}%)</div>
+      <div class="donut-desc">Total: <span class="desc-total" data-count="${total}">0</span> records · Top: ${topEntry[0]} (<span class="desc-top-pct" data-count="${((topEntry[1] / total) * 100 || 0).toFixed(1)}">0.0</span>%)</div>
       <div class="legend-title">Legend</div>
       <div class="donut-legend">${legend}</div>
     </div>`;
   }).join('');
+
+  animateDistributionElements();
+}
+
+function animateNumber(el, endValue, duration = 800, decimals = 0) {
+  const start = performance.now();
+  const target = Number(endValue) || 0;
+  function frame(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const current = target * progress;
+    if (decimals > 0) {
+      el.textContent = current.toFixed(decimals);
+    } else {
+      el.textContent = Math.round(current).toLocaleString();
+    }
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function animateOverviewElements() {
+  document.querySelectorAll('#panel-overview .stat-card').forEach((card, i) => {
+    card.classList.remove('animate-rise');
+    card.style.animationDelay = `${i * 60}ms`;
+    void card.offsetWidth;
+    card.classList.add('animate-rise');
+  });
+
+  document.querySelectorAll('#panel-overview .stat-val[data-count], #panel-overview .bar-val[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 750, 0);
+  });
+
+  document.querySelectorAll('#panel-overview .bar-fill[data-width]').forEach((bar, i) => {
+    bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.width = `${bar.dataset.width}%`;
+    }, 60 + i * 45);
+  });
+}
+
+function animateDistributionElements() {
+  document.querySelectorAll('#panel-distribution .donut-box').forEach((box, i) => {
+    box.classList.remove('animate-rise');
+    box.style.animationDelay = `${i * 70}ms`;
+    void box.offsetWidth;
+    box.classList.add('animate-rise');
+  });
+
+  document.querySelectorAll('#panel-distribution .legend-count[data-count], #panel-distribution .legend-pct[data-count], #panel-distribution .donut-types-count[data-count], #panel-distribution .desc-total[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 0);
+  });
+
+  document.querySelectorAll('#panel-distribution .desc-top-pct[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 1);
+  });
 }
 
 function arc(start, end) {
@@ -430,7 +527,7 @@ function renderPreview() {
     `Showing ${previewRows.length.toLocaleString()} of ${DS.rows.length.toLocaleString()} rows`;
   const thead = `<thead><tr>${DS.headers.map(h=>`<th><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${DS.types[h]==='numeric'?'#60a5fa':DS.types[h]==='categorical'?'#a78bfa':'#f59e0b'};margin-right:5px;vertical-align:middle"></span>${h}</th>`).join('')}</tr></thead>`;
   const tbody = `<tbody>${previewRows.map(row=>`<tr>${DS.headers.map(h=>{
-    const v=row[h]||''; const color = COLORS[v]||'';
+    const v=row[h]||''; const color = colorForLabel(v, 0, false);
     return `<td style="${color?`color:${color};font-weight:600`:''}">  ${v}</td>`;
   }).join('')}</tr>`).join('')}</tbody>`;
   document.getElementById('preview-table').innerHTML = thead+tbody;
@@ -453,41 +550,48 @@ function renderNumeric() {
 
 // COLUMNS
 let allColCards = [];
+
+function updateColumnKpis() {
+  const total = DS.headers.length;
+  const num = Object.values(DS.types).filter(t => t === 'numeric').length;
+  const cat = Object.values(DS.types).filter(t => t === 'categorical').length;
+  const idCount = Object.values(DS.types).filter(t => t === 'id').length;
+
+  document.getElementById('kpi-total').textContent = total.toLocaleString();
+  document.getElementById('kpi-num').textContent = num.toLocaleString();
+  document.getElementById('kpi-cat').textContent = cat.toLocaleString();
+  document.getElementById('kpi-id').textContent = idCount.toLocaleString();
+  document.getElementById('columns-sub').textContent =
+    `Total columns: ${total.toLocaleString()} | Typed using sampled rows`;
+}
+
+function makeColumnCard(col, index) {
+  const t = DS.types[col] || 'categorical';
+  const typeColor = { numeric:'#60a5fa', categorical:'#a78bfa', id:'#f59e0b' };
+  const typeLabel = { numeric:'NUMERIC', categorical:'CATEGORICAL', id:'IDENTIFIER' };
+  const iconLabel = { numeric:'#', categorical:'≡', id:'ID' };
+  return `<div class="col-card" data-col="${col.toLowerCase()}">
+    <div class="col-icon" style="background:${typeColor[t]}22;color:${typeColor[t]}">${iconLabel[t]}</div>
+    <div style="min-width:0">
+      <div class="col-name">${col}</div>
+      <div class="col-type" style="color:${typeColor[t]}">${typeLabel[t]}</div>
+    </div>
+    <div class="col-num">#${index + 1}</div>
+  </div>`;
+}
+
 function renderColumns() {
   const cg = document.getElementById('col-grid');
-  const typeColor = { numeric:'#60a5fa', categorical:'#a78bfa', id:'#f59e0b' };
-  const typeLabel = { numeric:'#', categorical:'≡', id:'ID' };
-  allColCards = DS.headers.map((col,i) => {
-    const t = DS.types[col]||'categorical';
-    return `<div class="col-card" data-col="${col.toLowerCase()}">
-      <div class="col-icon" style="background:${typeColor[t]}22;color:${typeColor[t]}">${typeLabel[t]}</div>
-      <div style="flex:1;min-width:0">
-        <div class="col-name">${col}</div>
-        <div class="col-type" style="color:${typeColor[t]}">${t}</div>
-      </div>
-      <div class="col-num">#${i+1}</div>
-    </div>`;
-  });
+  allColCards = DS.headers.map((col, i) => makeColumnCard(col, i));
   cg.innerHTML = allColCards.join('');
+  updateColumnKpis();
 }
 
 function filterCols() {
   const q = document.getElementById('col-search').value.toLowerCase();
   const filtered = DS.headers.filter(h => h.toLowerCase().includes(q));
   const cg = document.getElementById('col-grid');
-  const typeColor = { numeric:'#60a5fa', categorical:'#a78bfa', id:'#f59e0b' };
-  const typeLabel = { numeric:'#', categorical:'≡', id:'ID' };
-  cg.innerHTML = filtered.map((col,i) => {
-    const t = DS.types[col]||'categorical';
-    return `<div class="col-card">
-      <div class="col-icon" style="background:${typeColor[t]}22;color:${typeColor[t]}">${typeLabel[t]}</div>
-      <div style="flex:1;min-width:0">
-        <div class="col-name">${col}</div>
-        <div class="col-type" style="color:${typeColor[t]}">${t}</div>
-      </div>
-      <div class="col-num">#${DS.headers.indexOf(col)+1}</div>
-    </div>`;
-  }).join('');
+  cg.innerHTML = filtered.map(col => makeColumnCard(col, DS.headers.indexOf(col))).join('');
 }
 
 // TABS
@@ -497,6 +601,9 @@ function switchTab(id, btn) {
   const activeButton = btn || document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
   if (activeButton) activeButton.classList.add('active');
   document.getElementById('panel-'+id).classList.add('active');
+
+  if (id === 'overview') animateOverviewElements();
+  if (id === 'distribution') animateDistributionElements();
 }
 </script>
 </body>
