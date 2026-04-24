@@ -26,6 +26,27 @@
     --pink: #f472b6;
   }
 
+  /* LIGHT MODE */
+  body.light {
+  --bg: #f8fafc;
+  --bg2: #f1f5f9;
+  --bg3: #e2e8f0;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --subtle: #475569;
+}
+  body.light .col-card { background: linear-gradient(180deg,#e8f0fe 0%,#dde8fd 100%); border-color: #bfcfee; }
+  body.light tbody tr:nth-child(even) { background: #eef2f9; }
+  body.light tbody tr:nth-child(odd)  { background: #f5f8ff; }
+  body.light td { color: #1e293b; border-bottom-color: #e2e8f0; }
+  body.light th { background: #f1f5f9; color: #475569; }
+  body.light .table-wrap { border-color: #cbd5e1; }
+
+  .theme-toggle { background: var(--bg2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-family: inherit; cursor: pointer; transition: all .2s; }
+.theme-toggle:hover { border-color: var(--blue); }
+
   body {
     background: var(--bg);
     color: var(--text);
@@ -41,7 +62,7 @@
   /* HEADER */
   .header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
   .header-icon { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 8px 12px; font-size: 20px; }
-  .header-title { font-size: 18px; font-weight: 700; color: #f1f5f9; }
+  .header-title { font-size: 18px; font-weight: 700; color: #0579ec; }
   .header-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
   .header-badges { margin-left: auto; display: flex; gap: 10px; }
   .badge { background: var(--bg2); border-radius: 8px; padding: 10px 16px; text-align: center; min-width: 80px; }
@@ -786,7 +807,8 @@
   <div class="status-bar">
     <div class="status-dot"></div>
     <span id="status-text">Dataset loaded successfully</span>
-    <div class="status-right">
+    <div class="status-right" style="display:flex;gap:8px;align-items:center">
+      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀️ Light Mode</button>
       <button class="back-upload-btn" onclick="goToUpload()">Back to Upload</button>
     </div>
   </div>
@@ -849,6 +871,11 @@
 
 <script>
 let DS = { rows: [], headers: [], types: {}, categoricals: {}, numerics: {} };
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+}
 
 const COLORS = {
   High:"#ef4444",Medium:"#f59e0b",Low:"#22c55e",
@@ -1212,7 +1239,7 @@ function renderDistributionAgeCard() {
   }).join('');
 
   return `<div class="age-dist-card">
-    <div class="age-dist-overline">Chart B • Demographics</div>
+    <div class="age-dist-overline">Chart B • Age</div>
     <div class="age-dist-title">Age Distribution</div>
     <div class="age-dist-sub">Number of students per age (${ages[0]}-${ages[ages.length - 1]})</div>
     <svg class="age-dist-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
@@ -1358,7 +1385,7 @@ function renderEnrollmentYearCard() {
   }).join('');
 
   return `<div class="enroll-card">
-    <div class="enroll-head-overline">Chart A • Enrollment</div>
+    <div class="enroll-head-overline">Chart 4 • Enrollment</div>
     <div class="enroll-head-title">Year of Study - Enrollment Count</div>
     <div class="enroll-head-sub">How many students are in each academic year</div>
     <div class="enroll-kpis">${kpis}</div>
@@ -1438,7 +1465,7 @@ function renderBurnoutYearCard() {
   const legend = levels.map((lvl, i) => `<span class="burnout-legend-item"><span class="burnout-legend-dot" style="background:${colorForLabel(lvl, i)}"></span>${lvl}</span>`).join('');
 
   return `<div class="burnout-card">
-    <div class="burnout-head-overline">Chart 6 • Academic Year</div>
+    <div class="burnout-head-overline">Chart 1 • Burnout by Academic Year</div>
     <div class="burnout-head-title">Burnout by Year of Study</div>
     <div class="burnout-head-sub">High / Medium / Low burnout per year</div>
     <svg class="burnout-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
@@ -1471,7 +1498,7 @@ function renderGenderCard(key, data) {
     </div>`).join('');
 
   return `<div class="gender-card">
-    <div class="gender-head-overline">Chart 1 • Demographics</div>
+    <div class="gender-head-overline">Chart 3 • Demographics</div>
     <div class="gender-head-title">Gender Distribution</div>
     <div class="gender-head-sub">Breakdown by gender identity</div>
     <div class="gender-layout">
@@ -1511,7 +1538,7 @@ function renderStressCard(key, data) {
     </div>`).join('');
 
   return `<div class="stress-card">
-    <div class="stress-head-overline">Chart 4 • Mental Health</div>
+    <div class="stress-head-overline">Chart 2 • Mental Health</div>
     <div class="stress-head-title">Stress Level</div>
     <div class="stress-head-sub">Overall stress distribution</div>
     <div class="stress-layout">
