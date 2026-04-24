@@ -141,6 +141,458 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .legend-metric { color: var(--subtle); font-size: 12px; }
 
+  /* DISTRIBUTION AGE CARD */
+  .age-dist-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 340px;
+  }
+  .age-dist-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .age-dist-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .age-dist-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .age-dist-svg {
+    width: 100%;
+    height: 220px;
+    display: block;
+  }
+
+  /* GENDER FEATURE CARD */
+  .gender-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .gender-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .gender-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .gender-head-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .gender-layout {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .gender-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background: var(--bg2);
+    border: 3px solid var(--bg);
+    overflow: hidden;
+  }
+  .gender-ring::before {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .6);
+    z-index: 1;
+  }
+  .ring-segments {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  .gender-ring-center {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+  .gender-groups {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #f8fafc;
+    font-weight: 700;
+  }
+  .gender-groups-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .gender-list {
+    display: grid;
+    gap: 8px;
+  }
+  .gender-item {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .gender-item-name {
+    color: var(--subtle);
+    font-size: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+  .gender-item-value {
+    font-size: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* STRESS FEATURE CARD */
+  .stress-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .stress-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .stress-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .stress-head-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .stress-layout {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .stress-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--bg);
+  }
+  .stress-ring::before {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .6);
+  }
+  .stress-ring-center {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+  .stress-levels-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #f8fafc;
+    font-weight: 700;
+  }
+  .stress-levels-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .stress-list {
+    display: grid;
+    gap: 8px;
+  }
+  .stress-item {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stress-item-name {
+    color: var(--subtle);
+    font-size: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+  .stress-item-value {
+    font-size: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* BURNOUT BY YEAR CARD */
+  .burnout-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 280px;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .burnout-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .burnout-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .burnout-head-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .burnout-svg {
+    width: 100%;
+    height: 180px;
+    display: block;
+  }
+  .burnout-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--subtle);
+  }
+  .burnout-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .burnout-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .chart-hover-target { transition: transform .16s ease, filter .16s ease, box-shadow .16s ease, color .16s ease; }
+  .bar-row.chart-hover-target:hover { transform: translateX(2px); }
+  .gender-item:hover,
+  .stress-item:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, .18);
+  }
+  .legend-item.chart-hover-target:hover {
+    color: #e2e8f0;
+  }
+  path.chart-hover-target:hover,
+  .burnout-bar.chart-hover-target:hover {
+    filter: brightness(1.13);
+  }
+  .burnout-bar {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transform: scaleY(0);
+  }
+  .burnout-bar.play {
+    animation: burnoutRise 820ms cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes burnoutRise {
+    0% { transform: scaleY(0); }
+    58% { transform: scaleY(1.1); }
+    78% { transform: scaleY(0.94); }
+    100% { transform: scaleY(1); }
+  }
+  .burnout-empty {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  /* ENROLLMENT BY YEAR CARD */
+  .enroll-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .enroll-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .enroll-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    line-height: 1.05;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .enroll-head-sub {
+    color: var(--subtle);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .enroll-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .enroll-kpi {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .enroll-kpi-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .enroll-kpi-lbl {
+    margin-top: 4px;
+    font-size: 10px;
+    letter-spacing: .8px;
+    color: var(--subtle);
+    text-transform: uppercase;
+  }
+  .enroll-bars {
+    display: grid;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .enroll-row {
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+  .enroll-row-lbl {
+    color: var(--subtle);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .enroll-track {
+    background: #13233f;
+    border-radius: 7px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .enroll-fill {
+    height: 100%;
+    border-radius: 7px;
+    width: 0%;
+    transition: width .9s ease;
+  }
+  .enroll-axis {
+    display: grid;
+    grid-template-columns: repeat(var(--tick-count, 2), minmax(0, 1fr));
+    font-size: 10px;
+    color: #64748b;
+    margin: 8px 2px 0 76px;
+  }
+  .enroll-axis span { text-align: center; }
+  .chart-tooltip {
+    position: fixed;
+    display: none;
+    pointer-events: none;
+    z-index: 2000;
+    min-width: 140px;
+    background: #0f1f44;
+    border: 1px solid #2f4f8b;
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #dbeafe;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, .45);
+    transform: translate(12px, -12px);
+  }
+  .chart-tooltip-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .chart-tooltip-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #93c5fd;
+  }
+  .chart-tooltip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
   .animate-rise {
     animation: riseIn .5s ease both;
   }
@@ -209,6 +661,32 @@
   @media(max-width:700px){
     .donut-grid { grid-template-columns: 1fr; }
     .num-grid { grid-template-columns: 1fr; }
+
+    .gender-card { padding: 20px; min-height: 280px; }
+    .gender-head-title { font-size: 24px; }
+    .gender-head-sub { font-size: 12px; }
+    .gender-layout { grid-template-columns: 1fr; justify-items: center; }
+    .gender-ring { width: 130px; height: 130px; }
+    .gender-ring::before { inset: 20px; }
+    .gender-item-name { font-size: 14px; }
+    .gender-item-value { font-size: 22px; }
+
+    .stress-card { padding: 20px; min-height: 280px; }
+    .stress-head-title { font-size: 24px; }
+    .stress-head-sub { font-size: 12px; }
+    .stress-layout { grid-template-columns: 1fr; justify-items: center; }
+    .stress-ring { width: 130px; height: 130px; }
+    .stress-ring::before { inset: 20px; }
+    .stress-item-name { font-size: 14px; }
+    .stress-item-value { font-size: 22px; }
+
+    .burnout-head-title { font-size: 24px; }
+    .burnout-head-sub { font-size: 12px; }
+    .burnout-svg { height: 165px; }
+
+    .enroll-head-title { font-size: 20px; }
+    .enroll-row { grid-template-columns: 58px 1fr; }
+    .enroll-axis { margin-left: 66px; }
   }
 
   @media(max-width:600px){
@@ -384,6 +862,39 @@ function colorForLabel(label, index = 0, useFallback = true) {
   return useFallback ? PALETTE[index % PALETTE.length] : '';
 }
 
+function escAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function niceStep(range, targetTicks = 6) {
+  const rough = Math.max(1, range / Math.max(2, targetTicks - 1));
+  const exp = Math.floor(Math.log10(rough));
+  const base = Math.pow(10, exp);
+  const f = rough / base;
+  let nice;
+  if (f <= 1) nice = 1;
+  else if (f <= 2) nice = 2;
+  else if (f <= 5) nice = 5;
+  else nice = 10;
+  return nice * base;
+}
+
+function buildNiceAxis(minV, maxV, ticks = 7) {
+  const range = Math.max(1, maxV - minV);
+  const step = niceStep(range, ticks);
+  const axisMin = Math.floor(minV / step) * step;
+  const axisMax = Math.ceil(maxV / step) * step;
+  const values = [];
+  for (let v = axisMin; v <= axisMax + step * 0.5; v += step) {
+    values.push(Math.round(v));
+  }
+  return { min: axisMin, max: axisMax, step, values };
+}
+
 // ── FILE HANDLING ──────────────────────────────────────
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
@@ -494,6 +1005,7 @@ function renderAll(filename) {
   renderPreview();
   renderNumeric();
   renderColumns();
+  initGraphHoverEffects();
 }
 
 // OVERVIEW
@@ -508,19 +1020,32 @@ function renderOverview() {
     { label:'Categorical Cols', val: catCount, icon:'🏷️', color:'#f59e0b' },
   ].map(c=>`<div class="stat-card"><div class="stat-icon">${c.icon}</div><div><div class="stat-val" style="color:${c.color}" data-count="${Number(String(c.val).replace(/,/g,''))}">0</div><div class="stat-lbl">${c.label}</div></div></div>`).join('');
 
-  // bar charts for top categoricals
+  // Overview cards: prioritize custom cards and exclude Course/Sleep Quality
   const cg = document.getElementById('chart-grid');
-  const catKeys = Object.keys(DS.categoricals).slice(0,4);
-  cg.innerHTML = catKeys.map(k => {
-    const data = DS.categoricals[k];
-    const maxVal = Math.max(...Object.values(data));
-    const bars = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([lbl,v],i)=>`
-      <div class="bar-row">
-        <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val" data-count="${v}">0</span></div>
-        <div class="bar-track"><div class="bar-fill" data-width="${(v/DS.rows.length*100).toFixed(1)}" style="width:0%;background:${colorForLabel(lbl, i)}"></div></div>
-      </div>`).join('');
-    return `<div class="chart-box"><div class="chart-title">${k.replace(/_/g,' ')}</div>${bars}</div>`;
-  }).join('');
+  const allCatKeys = Object.keys(DS.categoricals);
+  const cards = [];
+
+  const genderKey = allCatKeys.find(isGenderColumn);
+  const stressKey = allCatKeys.find(isStressColumn);
+  if (hasBurnoutYearData()) cards.push(renderBurnoutYearCard());
+  if (stressKey) cards.push(renderStressCard(stressKey, DS.categoricals[stressKey]));
+  if (genderKey) cards.push(renderGenderCard(genderKey, DS.categoricals[genderKey]));
+  if (hasEnrollmentData()) cards.push(renderEnrollmentYearCard());
+
+  const remainingKeys = allCatKeys.filter(k => {
+    if (k === genderKey || k === stressKey) return false;
+    if (isCourseColumn(k) || isSleepQualityColumn(k)) return false;
+    if (isInternetQualityColumn(k)) return false;
+    if (isBurnoutLevelColumn(k) || isYearColumn(k)) return false;
+    return true;
+  });
+
+  remainingKeys.forEach(k => {
+    if (cards.length >= 4) return;
+    cards.push(renderStandardOverviewCard(k, DS.categoricals[k]));
+  });
+
+  cg.innerHTML = cards.slice(0, 4).join('');
 
   animateOverviewElements();
 }
@@ -529,6 +1054,11 @@ function renderOverview() {
 function renderDistribution() {
   const dg = document.getElementById('donut-grid');
   dg.innerHTML = Object.entries(DS.categoricals).map(([key, data]) => {
+    if (isGenderColumn(key)) {
+      const ageCard = renderDistributionAgeCard();
+      if (ageCard) return ageCard;
+    }
+
     const total = Object.values(data).reduce((a,b)=>a+b,0);
     const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]);
     const topEntry = entries[0] || ['N/A', 0];
@@ -538,12 +1068,14 @@ function renderDistribution() {
       const start = cum;
       cum += pct;
       const color = colorForLabel(lbl, i);
-      return `<path d="${arc(start, start + pct)}" fill="${color}" stroke="#0f172a" stroke-width="1"></path>`;
+      const tip = `${key.replace(/_/g,' ')} • ${lbl}: ${v.toLocaleString()} (${(pct * 100).toFixed(1)}%)`;
+      return `<path class="chart-hover-target" data-tip="${escAttr(tip)}" d="${arc(start, start + pct)}" fill="${color}" stroke="#0f172a" stroke-width="1"></path>`;
     }).join('');
     const legend = entries.map(([lbl,v],i) => {
       const color = colorForLabel(lbl, i);
       const pct = (v / total * 100);
-      return `<div class="legend-item"><div class="legend-dot" style="background:${color}"></div>${lbl} <span class="legend-metric"><span class="legend-count" data-count="${v}">0</span> (<span class="legend-pct" data-count="${pct.toFixed(0)}">0</span>%)</span></div>`;
+      const tip = `${key.replace(/_/g,' ')} • ${lbl}: ${v.toLocaleString()} (${pct.toFixed(1)}%)`;
+      return `<div class="legend-item chart-hover-target" data-tip="${escAttr(tip)}"><div class="legend-dot" style="background:${color}"></div>${lbl} <span class="legend-metric"><span class="legend-count" data-count="${v}">0</span> (<span class="legend-pct" data-count="${pct.toFixed(0)}">0</span>%)</span></div>`;
     }).join('');
     return `<div class="donut-box">
       <div class="donut-title">${key.replace(/_/g,' ')}</div>
@@ -560,6 +1092,379 @@ function renderDistribution() {
   }).join('');
 
   animateDistributionElements();
+}
+
+function findAgeHeader() {
+  return DS.headers.find(h => {
+    const normalized = normalizeKey(h);
+    return normalized === 'age' || normalized.includes('age');
+  });
+}
+
+function renderDistributionAgeCard() {
+  const ageHeader = findAgeHeader();
+  if (!ageHeader) return '';
+
+  const counts = {};
+  DS.rows.forEach(row => {
+    const n = Number(row[ageHeader]);
+    if (Number.isNaN(n)) return;
+    const age = Math.round(n);
+    counts[age] = (counts[age] || 0) + 1;
+  });
+
+  const ages = Object.keys(counts).map(Number).sort((a, b) => a - b).slice(0, 12);
+  if (!ages.length) return '';
+
+  const vals = ages.map(a => counts[a]);
+  const yMin = Math.min(...vals);
+  const yMax = Math.max(...vals);
+  const pad = Math.max(10, Math.ceil((yMax - yMin) * 0.35));
+  const ageAxis = buildNiceAxis(Math.max(0, yMin - pad), yMax + Math.ceil(pad * 0.4), 7);
+  const axisMin = ageAxis.min;
+  const axisMax = ageAxis.max;
+
+  const vbW = 520, vbH = 230;
+  const m = { top: 12, right: 14, bottom: 34, left: 42 };
+  const plotW = vbW - m.left - m.right;
+  const plotH = vbH - m.top - m.bottom;
+
+  const xAt = (idx) => m.left + (ages.length === 1 ? plotW / 2 : (idx / (ages.length - 1)) * plotW);
+  const yAt = (v) => m.top + (1 - (v - axisMin) / Math.max(1, (axisMax - axisMin))) * plotH;
+
+  const pts = ages.map((age, i) => ({ age, value: counts[age], x: xAt(i), y: yAt(counts[age]) }));
+  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
+  const areaPath = `${linePath} L${pts[pts.length - 1].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} L${pts[0].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} Z`;
+
+  const tickVals = ageAxis.values;
+  const grid = tickVals.map((tickVal) => {
+    const t = (axisMax - tickVal) / Math.max(1, (axisMax - axisMin));
+    const y = m.top + t * plotH;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.5"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+  }).join('');
+
+  const xLabels = pts.map((p) => `<text x="${p.x.toFixed(2)}" y="${(vbH - 10)}" text-anchor="middle" fill="#94a3b8" font-size="10">${p.age}</text>`).join('');
+  const dots = pts.map((p) => {
+    const tip = `Age Distribution • Age ${p.age}: ${p.value.toLocaleString()} students`;
+    return `<circle class="chart-hover-target" data-tip="${escAttr(tip)}" cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="4.3" fill="#a78bfa" stroke="#020617" stroke-width="1.4"></circle>`;
+  }).join('');
+
+  return `<div class="age-dist-card">
+    <div class="age-dist-overline">Chart B • Demographics</div>
+    <div class="age-dist-title">Age Distribution</div>
+    <div class="age-dist-sub">Number of students per age (${ages[0]}-${ages[ages.length - 1]})</div>
+    <svg class="age-dist-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
+      ${grid}
+      <path d="${areaPath}" fill="#a78bfa" opacity="0.18"></path>
+      <path d="${linePath}" fill="none" stroke="#a78bfa" stroke-width="2.4"></path>
+      ${dots}
+      ${xLabels}
+      <text x="${(m.left + plotW / 2).toFixed(2)}" y="${(vbH - 2)}" text-anchor="middle" fill="#64748b" font-size="10">Age</text>
+    </svg>
+  </div>`;
+}
+
+function isGenderColumn(key) {
+  const normalized = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return normalized === 'gender' || normalized.includes('gender');
+}
+
+function isStressColumn(key) {
+  const normalized = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return normalized === 'stresslevel' || (normalized.includes('stress') && normalized.includes('level'));
+}
+
+function normalizeKey(key) {
+  return String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function isCourseColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'course' || normalized.includes('course');
+}
+
+function isSleepQualityColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'sleepquality' || (normalized.includes('sleep') && normalized.includes('quality'));
+}
+
+function isInternetQualityColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'internetquality' || (normalized.includes('internet') && normalized.includes('quality'));
+}
+
+function isBurnoutLevelColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'burnoutlevel' || (normalized.includes('burnout') && normalized.includes('level'));
+}
+
+function isYearColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'yearofstudy'
+    || normalized === 'academicyear'
+    || normalized === 'year'
+    || (normalized.includes('year') && (normalized.includes('study') || normalized.includes('academic')));
+}
+
+function renderStandardOverviewCard(key, data) {
+  const bars = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([lbl,v],i)=>`
+    <div class="bar-row chart-hover-target" data-tip="${escAttr(`${key.replace(/_/g,' ')} • ${lbl}: ${v.toLocaleString()} students`)}">
+      <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val" data-count="${v}">0</span></div>
+      <div class="bar-track"><div class="bar-fill" data-width="${(v/DS.rows.length*100).toFixed(1)}" style="width:0%;background:${colorForLabel(lbl, i)}"></div></div>
+    </div>`).join('');
+  return `<div class="chart-box"><div class="chart-title">${key.replace(/_/g,' ')}</div>${bars}</div>`;
+}
+
+function findHeaderBy(matcher) {
+  return DS.headers.find(h => matcher(h));
+}
+
+function hasBurnoutYearData() {
+  return Boolean(findHeaderBy(isBurnoutLevelColumn) && findHeaderBy(isYearColumn));
+}
+
+function hasEnrollmentData() {
+  return Boolean(findHeaderBy(isYearColumn));
+}
+
+function yearSortRank(label) {
+  const text = String(label || '').toLowerCase();
+  const n = parseInt((text.match(/\d+/) || [])[0], 10);
+  if (!Number.isNaN(n)) return n;
+  if (text.includes('first')) return 1;
+  if (text.includes('second')) return 2;
+  if (text.includes('third')) return 3;
+  if (text.includes('fourth')) return 4;
+  return 999;
+}
+
+function compactYearLabel(label) {
+  const text = String(label || '').trim();
+  const lower = text.toLowerCase();
+  const n = parseInt((lower.match(/\d+/) || [])[0], 10);
+  if (!Number.isNaN(n)) return `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
+  if (lower.includes('first')) return '1st';
+  if (lower.includes('second')) return '2nd';
+  if (lower.includes('third')) return '3rd';
+  if (lower.includes('fourth')) return '4th';
+  return text;
+}
+
+function renderEnrollmentYearCard() {
+  const yearHeader = findHeaderBy(isYearColumn);
+  if (!yearHeader) {
+    return `<div class="enroll-card"><div class="enroll-head-overline">Chart A • Enrollment</div><div class="enroll-head-title">Year of Study - Enrollment Count</div><div class="enroll-head-sub">How many students are in each academic year</div><div class="burnout-empty">No year column found in this dataset.</div></div>`;
+  }
+
+  const counts = {};
+  DS.rows.forEach(row => {
+    const y = String(row[yearHeader] || '').trim();
+    if (!y) return;
+    counts[y] = (counts[y] || 0) + 1;
+  });
+
+  const years = Object.keys(counts).sort((a, b) => yearSortRank(a) - yearSortRank(b)).slice(0, 4);
+  if (!years.length) {
+    return `<div class="enroll-card"><div class="enroll-head-overline">Chart A • Enrollment</div><div class="enroll-head-title">Year of Study - Enrollment Count</div><div class="enroll-head-sub">How many students are in each academic year</div><div class="burnout-empty">No year-group values found.</div></div>`;
+  }
+
+  const values = years.map(y => counts[y]);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const spread = Math.max(1, max - min);
+  const enrollAxis = buildNiceAxis(Math.max(0, min - Math.ceil(spread * 0.2)), max + Math.ceil(spread * 0.15), 7);
+  const axisMin = enrollAxis.min;
+  const axisMax = enrollAxis.max;
+
+  const kpis = years.map((y, i) => {
+    const color = colorForLabel(y, i);
+    return `<div class="enroll-kpi">
+      <div class="enroll-kpi-val" style="color:${color}">${counts[y].toLocaleString()}</div>
+      <div class="enroll-kpi-lbl">${String(y).toUpperCase()}</div>
+    </div>`;
+  }).join('');
+
+  const bars = years.map((y, i) => {
+    const value = counts[y];
+    const pct = ((value - axisMin) / Math.max(1, axisMax - axisMin)) * 100;
+    const width = Math.max(24, Math.min(100, pct));
+    const color = colorForLabel(y, i);
+    return `<div class="enroll-row chart-hover-target" data-tip="${escAttr(`${y} • ${value.toLocaleString()} students`)}">
+      <div class="enroll-row-lbl">${compactYearLabel(y)}</div>
+      <div class="enroll-track"><div class="enroll-fill" data-width="${width.toFixed(1)}" style="background:${color}"></div></div>
+    </div>`;
+  }).join('');
+
+  return `<div class="enroll-card">
+    <div class="enroll-head-overline">Chart A • Enrollment</div>
+    <div class="enroll-head-title">Year of Study - Enrollment Count</div>
+    <div class="enroll-head-sub">How many students are in each academic year</div>
+    <div class="enroll-kpis">${kpis}</div>
+    <div class="enroll-bars">${bars}</div>
+    <div class="enroll-axis" style="--tick-count:${enrollAxis.values.length}">${enrollAxis.values.map(v => `<span>${v.toLocaleString()}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderBurnoutYearCard() {
+  const yearHeader = findHeaderBy(isYearColumn);
+  const burnoutHeader = findHeaderBy(isBurnoutLevelColumn);
+  if (!yearHeader || !burnoutHeader) {
+    return `<div class="burnout-card"><div class="burnout-head-overline">Chart 6 • Academic Year</div><div class="burnout-head-title">Burnout by Year of Study</div><div class="burnout-head-sub">High / Medium / Low burnout per year</div><div class="burnout-empty">No matching year and burnout-level columns found.</div></div>`;
+  }
+
+  const levels = ['High', 'Medium', 'Low'];
+  const levelMap = { high: 'High', medium: 'Medium', low: 'Low' };
+  const yearsSet = new Set();
+  const matrix = {};
+
+  DS.rows.forEach(row => {
+    const yearRaw = String(row[yearHeader] || '').trim();
+    const levelRaw = String(row[burnoutHeader] || '').trim().toLowerCase();
+    const level = levelMap[levelRaw];
+    if (!yearRaw || !level) return;
+    yearsSet.add(yearRaw);
+    if (!matrix[yearRaw]) matrix[yearRaw] = { High: 0, Medium: 0, Low: 0 };
+    matrix[yearRaw][level] += 1;
+  });
+
+  const years = Array.from(yearsSet).sort((a, b) => yearSortRank(a) - yearSortRank(b)).slice(0, 6);
+  if (!years.length) {
+    return `<div class="burnout-card"><div class="burnout-head-overline">Chart 6 • Academic Year</div><div class="burnout-head-title">Burnout by Year of Study</div><div class="burnout-head-sub">High / Medium / Low burnout per year</div><div class="burnout-empty">No burnout data found for year groups.</div></div>`;
+  }
+
+  const values = years.flatMap(y => levels.map(l => (matrix[y] ? matrix[y][l] : 0)));
+  const rawMin = Math.min(...values);
+  const rawMax = Math.max(...values);
+  const spread = Math.max(1, rawMax - rawMin);
+  const burnoutAxis = buildNiceAxis(Math.max(0, rawMin - Math.ceil(spread * 0.4)), rawMax + Math.ceil(spread * 0.2), 6);
+  const yMin = burnoutAxis.min;
+  const yMax = burnoutAxis.max;
+
+  const vbW = 460, vbH = 190;
+  const m = { top: 12, right: 10, bottom: 34, left: 44 };
+  const plotW = vbW - m.left - m.right;
+  const plotH = vbH - m.top - m.bottom;
+  const groups = years.length;
+  const groupW = plotW / groups;
+  const barW = Math.min(22, groupW * 0.22);
+  const barGap = Math.max(4, barW * 0.25);
+  const gridAndLabels = burnoutAxis.values.map((tickVal) => {
+    const t = (yMax - tickVal) / Math.max(1, (yMax - yMin));
+    const y = m.top + t * plotH;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+  }).join('');
+
+  const bars = years.map((year, i) => {
+    const gx = m.left + i * groupW;
+    const data = matrix[year] || { High: 0, Medium: 0, Low: 0 };
+    const trioW = barW * 3 + barGap * 2;
+    const startX = gx + (groupW - trioW) / 2;
+
+    const rects = levels.map((lvl, j) => {
+      const v = data[lvl] || 0;
+      const ratio = yMax === yMin ? 0.5 : (v - yMin) / (yMax - yMin);
+      const h = Math.max(2, ratio * plotH);
+      const x = startX + j * (barW + barGap);
+      const y = m.top + (plotH - h);
+      return `<rect class="burnout-bar chart-hover-target" data-tip="${escAttr(`${year} • ${lvl}: ${v.toLocaleString()} students`)}" data-year="${escAttr(year)}" data-level="${lvl}" data-value="${v}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${h.toFixed(2)}" rx="3" fill="${colorForLabel(lvl, j)}"></rect>`;
+    }).join('');
+
+    const labelX = gx + groupW / 2;
+    return `${rects}<text x="${labelX.toFixed(2)}" y="${(vbH - 12)}" text-anchor="middle" fill="#94a3b8" font-size="10">${year}</text>`;
+  }).join('');
+
+  const legend = levels.map((lvl, i) => `<span class="burnout-legend-item"><span class="burnout-legend-dot" style="background:${colorForLabel(lvl, i)}"></span>${lvl}</span>`).join('');
+
+  return `<div class="burnout-card">
+    <div class="burnout-head-overline">Chart 6 • Academic Year</div>
+    <div class="burnout-head-title">Burnout by Year of Study</div>
+    <div class="burnout-head-sub">High / Medium / Low burnout per year</div>
+    <svg class="burnout-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
+      ${gridAndLabels}
+      ${bars}
+    </svg>
+    <div class="burnout-legend">${legend}</div>
+  </div>`;
+}
+
+function renderGenderCard(key, data) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((acc, [, v]) => acc + v, 0);
+
+  let cursor = 0;
+  const segmentPaths = entries.map(([label, value], i) => {
+    const pct = total > 0 ? value / total : 0;
+    const tip = `Gender • ${label}: ${value.toLocaleString()} students (${(pct * 100).toFixed(1)}%)`;
+    const path = `<path class="chart-hover-target" data-tip="${escAttr(tip)}" d="${donutArcPath(cursor, cursor + pct)}" fill="${colorForLabel(label, i)}" stroke="#020617" stroke-width="1.1"></path>`;
+    cursor += pct;
+    return { path };
+  });
+
+  const paths = segmentPaths.map(s => s.path).join('');
+
+  const rows = entries.map(([label, value], i) => `
+    <div class="gender-item">
+      <div class="gender-item-name">${label}</div>
+      <div class="gender-item-value" style="color:${colorForLabel(label, i)}" data-count="${value}">0</div>
+    </div>`).join('');
+
+  return `<div class="gender-card">
+    <div class="gender-head-overline">Chart 1 • Demographics</div>
+    <div class="gender-head-title">Gender Distribution</div>
+    <div class="gender-head-sub">Breakdown by gender identity</div>
+    <div class="gender-layout">
+      <div>
+        <div class="gender-ring">
+          <svg class="ring-segments" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>
+          <div class="gender-ring-center">
+            <div class="gender-groups" data-count="${entries.length}">0</div>
+            <div class="gender-groups-label">Groups</div>
+          </div>
+        </div>
+      </div>
+      <div class="gender-list">${rows}</div>
+    </div>
+  </div>`;
+}
+
+function renderStressCard(key, data) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((acc, [, v]) => acc + v, 0);
+
+  let cursor = 0;
+  const segmentPaths = entries.map(([label, value], i) => {
+    const pct = total > 0 ? value / total : 0;
+    const tip = `Stress Level • ${label}: ${value.toLocaleString()} students (${(pct * 100).toFixed(1)}%)`;
+    const path = `<path class="chart-hover-target" data-tip="${escAttr(tip)}" d="${donutArcPath(cursor, cursor + pct)}" fill="${colorForLabel(label, i)}" stroke="#020617" stroke-width="1.1"></path>`;
+    cursor += pct;
+    return { path };
+  });
+
+  const paths = segmentPaths.map(s => s.path).join('');
+
+  const rows = entries.map(([label, value], i) => `
+    <div class="stress-item">
+      <div class="stress-item-name">${label}</div>
+      <div class="stress-item-value" style="color:${colorForLabel(label, i)}" data-count="${value}">0</div>
+    </div>`).join('');
+
+  return `<div class="stress-card">
+    <div class="stress-head-overline">Chart 4 • Mental Health</div>
+    <div class="stress-head-title">Stress Level</div>
+    <div class="stress-head-sub">Overall stress distribution</div>
+    <div class="stress-layout">
+      <div>
+        <div class="stress-ring">
+          <svg class="ring-segments" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>
+          <div class="stress-ring-center">
+            <div class="stress-levels-count" data-count="${entries.length}">0</div>
+            <div class="stress-levels-label">Levels</div>
+          </div>
+        </div>
+      </div>
+      <div class="stress-list">${rows}</div>
+    </div>
+  </div>`;
 }
 
 function animateNumber(el, endValue, duration = 800, decimals = 0) {
@@ -590,12 +1495,122 @@ function animateOverviewElements() {
     animateNumber(el, el.dataset.count, 750, 0);
   });
 
+  document.querySelectorAll('#panel-overview .gender-item-value[data-count], #panel-overview .gender-groups[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 0);
+  });
+
+  document.querySelectorAll('#panel-overview .stress-item-value[data-count], #panel-overview .stress-levels-count[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 0);
+  });
+
   document.querySelectorAll('#panel-overview .bar-fill[data-width]').forEach((bar, i) => {
     bar.style.width = '0%';
     setTimeout(() => {
       bar.style.width = `${bar.dataset.width}%`;
     }, 60 + i * 45);
   });
+
+  document.querySelectorAll('#panel-overview .enroll-fill[data-width]').forEach((bar, i) => {
+    bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.width = `${bar.dataset.width}%`;
+    }, 80 + i * 60);
+  });
+
+  animateBurnoutBars();
+}
+
+function animateBurnoutBars() {
+  document.querySelectorAll('#panel-overview .burnout-bar').forEach((bar, i) => {
+    bar.classList.remove('play');
+    bar.style.animationDelay = `${80 + i * 45}ms`;
+    void bar.getBBox();
+    bar.classList.add('play');
+  });
+}
+
+let _hoverInit = false;
+let _hoverTooltip = null;
+let _hoverActive = null;
+
+function initGraphHoverEffects() {
+  if (_hoverInit) return;
+  _hoverInit = true;
+
+  const tip = document.createElement('div');
+  tip.className = 'chart-tooltip';
+  tip.innerHTML = '<div class="chart-tooltip-title"></div><div class="chart-tooltip-row"><span class="chart-tooltip-dot"></span><span class="chart-tooltip-text"></span></div>';
+  document.body.appendChild(tip);
+
+  _hoverTooltip = tip;
+
+  document.addEventListener('mouseover', onChartHoverOver);
+  document.addEventListener('mousemove', onChartHoverMove);
+  document.addEventListener('mouseout', onChartHoverOut);
+}
+
+function onChartHoverOver(e) {
+  const target = e.target.closest('#panel-overview .chart-hover-target, #panel-distribution .chart-hover-target');
+  if (!target || !_hoverTooltip) return;
+
+  const tipText = target.getAttribute('data-tip') || '';
+  if (!tipText) return;
+
+  const titleEl = _hoverTooltip.querySelector('.chart-tooltip-title');
+  const textEl = _hoverTooltip.querySelector('.chart-tooltip-text');
+  const dotEl = _hoverTooltip.querySelector('.chart-tooltip-dot');
+  if (!titleEl || !textEl || !dotEl) return;
+
+  const parts = tipText.split('•').map(s => s.trim());
+  if (parts.length > 1) {
+    titleEl.textContent = parts[0];
+    textEl.textContent = parts.slice(1).join(' • ');
+  } else {
+    titleEl.textContent = 'Details';
+    textEl.textContent = tipText;
+  }
+
+  const fill = target.getAttribute('fill') ||
+    (target.querySelector('.legend-dot') ? getComputedStyle(target.querySelector('.legend-dot')).backgroundColor : '') ||
+    '#60a5fa';
+  dotEl.style.background = fill;
+
+  _hoverTooltip.style.display = 'block';
+  _hoverActive = target;
+  positionGraphTooltip(e.clientX, e.clientY);
+}
+
+function onChartHoverMove(e) {
+  if (!_hoverActive || !_hoverTooltip || _hoverTooltip.style.display !== 'block') return;
+  positionGraphTooltip(e.clientX, e.clientY);
+}
+
+function onChartHoverOut(e) {
+  if (!_hoverActive || !_hoverTooltip) return;
+  const next = e.relatedTarget;
+  if (next && next.closest && next.closest('#panel-overview .chart-hover-target, #panel-distribution .chart-hover-target')) {
+    return;
+  }
+  _hoverTooltip.style.display = 'none';
+  _hoverActive = null;
+}
+
+function positionGraphTooltip(clientX, clientY) {
+  if (!_hoverTooltip) return;
+  const pad = 14;
+  let x = clientX + 12;
+  let y = clientY - 12;
+
+  _hoverTooltip.style.left = `${x}px`;
+  _hoverTooltip.style.top = `${y}px`;
+
+  const rect = _hoverTooltip.getBoundingClientRect();
+  if (rect.right > window.innerWidth - pad) x = clientX - rect.width - 12;
+  if (rect.bottom > window.innerHeight - pad) y = window.innerHeight - rect.height - pad;
+  if (y < pad) y = pad;
+
+  _hoverTooltip.style.left = `${x}px`;
+  _hoverTooltip.style.top = `${y}px`;
 }
 
 function animateDistributionElements() {
@@ -621,6 +1636,17 @@ function arc(start, end) {
   const x1=cx+r*Math.cos(s),y1=cy+r*Math.sin(s),x2=cx+r*Math.cos(e),y2=cy+r*Math.sin(e);
   const large = end-start>0.5?1:0;
   return `M${cx} ${cy} L${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2}Z`;
+}
+
+function donutArcPath(start, end, outerR = 48, innerR = 31, cx = 50, cy = 50) {
+  const s = start * 2 * Math.PI - Math.PI / 2;
+  const e = end * 2 * Math.PI - Math.PI / 2;
+  const x1o = cx + outerR * Math.cos(s), y1o = cy + outerR * Math.sin(s);
+  const x2o = cx + outerR * Math.cos(e), y2o = cy + outerR * Math.sin(e);
+  const x1i = cx + innerR * Math.cos(s), y1i = cy + innerR * Math.sin(s);
+  const x2i = cx + innerR * Math.cos(e), y2i = cy + innerR * Math.sin(e);
+  const large = end - start > 0.5 ? 1 : 0;
+  return `M${x1o} ${y1o} A${outerR} ${outerR} 0 ${large} 1 ${x2o} ${y2o} L${x2i} ${y2i} A${innerR} ${innerR} 0 ${large} 0 ${x1i} ${y1i} Z`;
 }
 
 // PREVIEW
