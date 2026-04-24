@@ -225,6 +225,9 @@
     border-radius: 10px;
     padding: 16px;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
   .screen-time-overline {
     color: var(--muted);
@@ -283,56 +286,19 @@
   }
   .gender-layout {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 16px;
-    align-items: center;
+    grid-template-columns: 1fr 220px;
+    gap: 20px;
+    align-items: start;
   }
-  .gender-ring {
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    position: relative;
-    display: grid;
-    place-items: center;
-    background: var(--bg2);
-    border: 3px solid var(--bg);
-    overflow: hidden;
+  .gender-chart-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
-  .gender-ring::before {
-    content: '';
-    position: absolute;
-    inset: 22px;
-    border-radius: 50%;
-    background: var(--bg2);
-    border: 2px solid var(--bg);
-    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .6);
-    z-index: 1;
-  }
-  .ring-segments {
-    position: absolute;
-    inset: 0;
+  .gender-bar-svg {
     width: 100%;
-    height: 100%;
-    z-index: 0;
-  }
-  .gender-ring-center {
-    position: relative;
-    text-align: center;
-    z-index: 1;
-  }
-  .gender-groups {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 38px;
-    line-height: 1;
-    color: var(--text);
-    font-weight: 700;
-  }
-  .gender-groups-label {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 6px;
+    height: 220px;
+    display: block;
   }
   .gender-list {
     display: grid;
@@ -391,9 +357,19 @@
   }
   .stress-layout {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 16px;
-    align-items: center;
+    grid-template-columns: 1fr 220px;
+    gap: 20px;
+    align-items: start;
+  }
+  .stress-chart-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stress-bar-svg {
+    width: 100%;
+    height: 220px;
+    display: block;
   }
   .stress-ring {
     width: 160px;
@@ -802,8 +778,6 @@
     .gender-head-title { font-size: 24px; }
     .gender-head-sub { font-size: 12px; }
     .gender-layout { grid-template-columns: 1fr; justify-items: center; }
-    .gender-ring { width: 130px; height: 130px; }
-    .gender-ring::before { inset: 20px; }
     .gender-item-name { font-size: 14px; }
     .gender-item-value { font-size: 22px; }
 
@@ -1304,51 +1278,86 @@ function renderDistributionAgeCard() {
     counts[age] = (counts[age] || 0) + 1;
   });
 
-  const ages = Object.keys(counts).map(Number).sort((a, b) => a - b).slice(0, 12);
-  if (!ages.length) return '';
+  // Group ages into ranges
+  const ageGroups = {};
+  Object.keys(counts).forEach(ageStr => {
+    const age = Number(ageStr);
+    let groupKey;
+    if (age >= 18 && age <= 20) groupKey = '18-20';
+    else if (age >= 21 && age <= 23) groupKey = '21-23';
+    else if (age >= 24 && age <= 26) groupKey = '24-26';
+    else if (age >= 27 && age <= 29) groupKey = '27-29';
+    else if (age >= 30 && age <= 32) groupKey = '30-32';
+    else if (age >= 33 && age <= 35) groupKey = '33-35';
+    else if (age >= 36 && age <= 38) groupKey = '36-38';
+    else if (age >= 39 && age <= 41) groupKey = '39-41';
+    else if (age >= 42 && age <= 44) groupKey = '42-44';
+    else if (age >= 45 && age <= 47) groupKey = '45-47';
+    else if (age >= 48 && age <= 50) groupKey = '48-50';
+    else groupKey = age >= 51 ? '51+' : '17-';
 
-  const vals = ages.map(a => counts[a]);
-  const yMin = Math.min(...vals);
+    if (!ageGroups[groupKey]) ageGroups[groupKey] = 0;
+    ageGroups[groupKey] += counts[age];
+  });
+
+  const groupKeys = Object.keys(ageGroups).sort((a, b) => {
+    if (a === '17-') return -1;
+    if (b === '17-') return 1;
+    if (a === '51+') return 1;
+    if (b === '51+') return -1;
+    return a.localeCompare(b);
+  });
+
+  if (!groupKeys.length) return '';
+
+  const vals = groupKeys.map(k => ageGroups[k]);
   const yMax = Math.max(...vals);
-  const pad = Math.max(10, Math.ceil((yMax - yMin) * 0.35));
-  const ageAxis = buildNiceAxis(Math.max(0, yMin - pad), yMax + Math.ceil(pad * 0.4), 7);
+  const ageAxis = buildNiceAxis(0, yMax + Math.ceil(yMax * 0.12), 6);
   const axisMin = ageAxis.min;
   const axisMax = ageAxis.max;
 
-  const vbW = 560, vbH = 260;
-  const m = { top: 16, right: 22, bottom: 52, left: 42 };
+  const vbW = 560, vbH = 270;
+  const m = { top: 18, right: 18, bottom: 48, left: 46 };
   const plotW = vbW - m.left - m.right;
   const plotH = vbH - m.top - m.bottom;
+  const groupW = plotW / groupKeys.length;
+  const barW = Math.max(32, Math.min(60, groupW * 0.75));
 
-  const xAt = (idx) => m.left + (ages.length === 1 ? plotW / 2 : (idx / (ages.length - 1)) * plotW);
-  const yAt = (v) => m.top + (1 - (v - axisMin) / Math.max(1, (axisMax - axisMin))) * plotH;
+  const xAt = (idx) => m.left + idx * groupW + (groupW - barW) / 2;
+  const yAt = (v) => m.top + (1 - (v - axisMin) / Math.max(1, axisMax - axisMin)) * plotH;
 
-  const pts = ages.map((age, i) => ({ age, value: counts[age], x: xAt(i), y: yAt(counts[age]) }));
-  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
-  const areaPath = `${linePath} L${pts[pts.length - 1].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} L${pts[0].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} Z`;
-
-  const tickVals = ageAxis.values;
-  const grid = tickVals.map((tickVal) => {
-    const t = (axisMax - tickVal) / Math.max(1, (axisMax - axisMin));
+  const grid = ageAxis.values.map((tickVal) => {
+    const t = (axisMax - tickVal) / Math.max(1, axisMax - axisMin);
     const y = m.top + t * plotH;
-    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.5"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.5"></line><text x="${m.left - 10}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
   }).join('');
 
-  const xLabels = pts.map((p) => `<text x="${p.x.toFixed(2)}" y="${(vbH - 18)}" text-anchor="middle" fill="#94a3b8" font-size="12">${p.age}</text>`).join('');
-  const dots = pts.map((p) => {
-    const tip = `Age Distribution • Age ${p.age}: ${p.value.toLocaleString()} students`;
-    return `<circle class="chart-hover-target" data-tip="${escAttr(tip)}" cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="4.3" fill="#a78bfa" stroke="#020617" stroke-width="1.4"></circle>`;
+  const yAxis = `<line x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+  const xAxis = `<line x1="${m.left}" y1="${(m.top + plotH)}" x2="${(vbW - m.right)}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+
+  const bars = groupKeys.map((group, i) => {
+    const value = ageGroups[group] || 0;
+    const x = xAt(i);
+    const y = yAt(value);
+    const height = Math.max(2, m.top + plotH - y);
+    const tip = `Age Distribution • Ages ${group}: ${value.toLocaleString()} students`;
+    return `<rect class="chart-hover-target" data-tip="${escAttr(tip)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${height.toFixed(2)}" rx="8" fill="#a78bfa"></rect>`;
+  }).join('');
+
+  const xLabels = groupKeys.map((group, i) => {
+    const x = xAt(i) + barW / 2;
+    return `<text x="${x.toFixed(2)}" y="${(vbH - 16)}" text-anchor="middle" fill="#94a3b8" font-size="11">${group}</text>`;
   }).join('');
 
   return `<div class="age-dist-card">
     <div class="age-dist-overline">Chart B • Age</div>
     <div class="age-dist-title">Age Distribution</div>
-    <div class="age-dist-sub">Number of students per age (${ages[0]}-${ages[ages.length - 1]})</div>
+    <div class="age-dist-sub">Number of students per age group</div>
     <svg class="age-dist-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="xMinYMin meet">
       ${grid}
-      <path d="${areaPath}" fill="#a78bfa" opacity="0.18"></path>
-      <path d="${linePath}" fill="none" stroke="#a78bfa" stroke-width="2.4"></path>
-      ${dots}
+      ${yAxis}
+      ${xAxis}
+      ${bars}
       ${xLabels}
     </svg>
   </div>`;
@@ -1604,17 +1613,46 @@ function renderBurnoutYearCard() {
 function renderGenderCard(key, data) {
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((acc, [, v]) => acc + v, 0);
+  const values = entries.map(([, v]) => v);
+  const yMax = Math.max(0, ...values);
+  const genderAxis = buildNiceAxis(0, yMax + Math.ceil(yMax * 0.12), 5);
+  const axisMin = genderAxis.min;
+  const axisMax = genderAxis.max;
 
-  let cursor = 0;
-  const segmentPaths = entries.map(([label, value], i) => {
-    const pct = total > 0 ? value / total : 0;
-    const tip = `Gender • ${label}: ${value.toLocaleString()} students (${(pct * 100).toFixed(1)}%)`;
-    const path = `<path class="chart-hover-target" data-tip="${escAttr(tip)}" d="${donutArcPath(cursor, cursor + pct)}" fill="${colorForLabel(label, i)}" stroke="#020617" stroke-width="1.1"></path>`;
-    cursor += pct;
-    return { path };
-  });
+  const vbW = 480;
+  const vbH = 220;
+  const m = { top: 18, right: 18, bottom: 44, left: 44 };
+  const plotW = vbW - m.left - m.right;
+  const plotH = vbH - m.top - m.bottom;
+  const groupW = plotW / entries.length;
+  const barW = Math.max(28, Math.min(56, groupW * 0.65));
 
-  const paths = segmentPaths.map(s => s.path).join('');
+  const xAt = (idx) => m.left + idx * groupW + (groupW - barW) / 2;
+  const yAt = (value) => m.top + (1 - (value - axisMin) / Math.max(1, axisMax - axisMin)) * plotH;
+
+  const grid = genderAxis.values.map((tickVal) => {
+    const t = (axisMax - tickVal) / Math.max(1, axisMax - axisMin);
+    const y = m.top + t * plotH;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.45"></line><text x="${m.left - 10}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+  }).join('');
+
+  const yAxis = `<line x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+  const xAxis = `<line x1="${m.left}" y1="${(m.top + plotH)}" x2="${(vbW - m.right)}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+
+  const bars = entries.map(([label, value], i) => {
+    const x = xAt(i);
+    const y = yAt(value);
+    const height = Math.max(2, m.top + plotH - y);
+    const pct = total > 0 ? (value / total * 100).toFixed(1) : '0';
+    const tip = `Gender • ${label}: ${value.toLocaleString()} students (${pct}%)`;
+    return `<rect class="chart-hover-target" data-tip="${escAttr(tip)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${height.toFixed(2)}" rx="8" fill="${colorForLabel(label, i)}"></rect><text x="${(x + barW / 2).toFixed(2)}" y="${(y - 8).toFixed(2)}" text-anchor="middle" fill="#e2e8f0" font-size="10">${value.toLocaleString()}</text>`;
+  }).join('');
+
+  const xLabels = entries.map(([label], i) => {
+    const x = xAt(i) + barW / 2;
+    const shortLabel = label.length > 10 ? label.substring(0, 10) + '...' : label;
+    return `<text x="${x.toFixed(2)}" y="${(vbH - 16)}" text-anchor="middle" fill="#94a3b8" font-size="11">${shortLabel}</text>`;
+  }).join('');
 
   const rows = entries.map(([label, value], i) => `
     <div class="gender-item">
@@ -1627,14 +1665,14 @@ function renderGenderCard(key, data) {
     <div class="gender-head-title">Gender Distribution</div>
     <div class="gender-head-sub">Breakdown by gender identity</div>
     <div class="gender-layout">
-      <div>
-        <div class="gender-ring">
-          <svg class="ring-segments" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>
-          <div class="gender-ring-center">
-            <div class="gender-groups" data-count="${entries.length}">0</div>
-            <div class="gender-groups-label">Groups</div>
-          </div>
-        </div>
+      <div class="gender-chart-section">
+        <svg class="gender-bar-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="xMinYMin meet">
+          ${grid}
+          ${yAxis}
+          ${xAxis}
+          ${bars}
+          ${xLabels}
+        </svg>
       </div>
       <div class="gender-list">${rows}</div>
     </div>
@@ -1644,17 +1682,46 @@ function renderGenderCard(key, data) {
 function renderStressCard(key, data) {
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((acc, [, v]) => acc + v, 0);
+  const values = entries.map(([, v]) => v);
+  const yMax = Math.max(0, ...values);
+  const stressAxis = buildNiceAxis(0, yMax + Math.ceil(yMax * 0.12), 5);
+  const axisMin = stressAxis.min;
+  const axisMax = stressAxis.max;
 
-  let cursor = 0;
-  const segmentPaths = entries.map(([label, value], i) => {
-    const pct = total > 0 ? value / total : 0;
-    const tip = `Stress Level • ${label}: ${value.toLocaleString()} students (${(pct * 100).toFixed(1)}%)`;
-    const path = `<path class="chart-hover-target" data-tip="${escAttr(tip)}" d="${donutArcPath(cursor, cursor + pct)}" fill="${colorForLabel(label, i)}" stroke="#020617" stroke-width="1.1"></path>`;
-    cursor += pct;
-    return { path };
-  });
+  const vbW = 480;
+  const vbH = 220;
+  const m = { top: 18, right: 18, bottom: 44, left: 44 };
+  const plotW = vbW - m.left - m.right;
+  const plotH = vbH - m.top - m.bottom;
+  const groupW = plotW / entries.length;
+  const barW = Math.max(28, Math.min(56, groupW * 0.65));
 
-  const paths = segmentPaths.map(s => s.path).join('');
+  const xAt = (idx) => m.left + idx * groupW + (groupW - barW) / 2;
+  const yAt = (value) => m.top + (1 - (value - axisMin) / Math.max(1, axisMax - axisMin)) * plotH;
+
+  const grid = stressAxis.values.map((tickVal) => {
+    const t = (axisMax - tickVal) / Math.max(1, axisMax - axisMin);
+    const y = m.top + t * plotH;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.45"></line><text x="${m.left - 10}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+  }).join('');
+
+  const yAxis = `<line x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+  const xAxis = `<line x1="${m.left}" y1="${(m.top + plotH)}" x2="${(vbW - m.right)}" y2="${(m.top + plotH)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line>`;
+
+  const bars = entries.map(([label, value], i) => {
+    const x = xAt(i);
+    const y = yAt(value);
+    const height = Math.max(2, m.top + plotH - y);
+    const pct = total > 0 ? (value / total * 100).toFixed(1) : '0';
+    const tip = `Stress Level • ${label}: ${value.toLocaleString()} students (${pct}%)`;
+    return `<rect class="chart-hover-target" data-tip="${escAttr(tip)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${height.toFixed(2)}" rx="8" fill="${colorForLabel(label, i)}"></rect><text x="${(x + barW / 2).toFixed(2)}" y="${(y - 8).toFixed(2)}" text-anchor="middle" fill="#e2e8f0" font-size="10">${value.toLocaleString()}</text>`;
+  }).join('');
+
+  const xLabels = entries.map(([label], i) => {
+    const x = xAt(i) + barW / 2;
+    const shortLabel = label.length > 10 ? label.substring(0, 10) + '...' : label;
+    return `<text x="${x.toFixed(2)}" y="${(vbH - 16)}" text-anchor="middle" fill="#94a3b8" font-size="11">${shortLabel}</text>`;
+  }).join('');
 
   const rows = entries.map(([label, value], i) => `
     <div class="stress-item">
@@ -1667,14 +1734,14 @@ function renderStressCard(key, data) {
     <div class="stress-head-title">Stress Level</div>
     <div class="stress-head-sub">Overall stress distribution</div>
     <div class="stress-layout">
-      <div>
-        <div class="stress-ring">
-          <svg class="ring-segments" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>
-          <div class="stress-ring-center">
-            <div class="stress-levels-count" data-count="${entries.length}">0</div>
-            <div class="stress-levels-label">Levels</div>
-          </div>
-        </div>
+      <div class="stress-chart-section">
+        <svg class="stress-bar-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="xMinYMin meet">
+          ${grid}
+          ${yAxis}
+          ${xAxis}
+          ${bars}
+          ${xLabels}
+        </svg>
       </div>
       <div class="stress-list">${rows}</div>
     </div>
@@ -1709,7 +1776,7 @@ function animateOverviewElements() {
     animateNumber(el, el.dataset.count, 750, 0);
   });
 
-  document.querySelectorAll('#panel-overview .gender-item-value[data-count], #panel-overview .gender-groups[data-count]').forEach((el) => {
+  document.querySelectorAll('#panel-overview .gender-item-value[data-count]').forEach((el) => {
     animateNumber(el, el.dataset.count, 800, 0);
   });
 
