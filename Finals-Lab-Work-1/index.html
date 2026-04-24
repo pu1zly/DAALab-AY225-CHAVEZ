@@ -234,12 +234,17 @@
   .mv-stat-val { color: var(--text); font-weight: 600; }
   .mv-bar-track { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; }
   .mv-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
+  .v-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(2,6,23,.92);align-items:center;justify-content:center;flex-direction:column;}
+  .v-overlay.show{display:flex;}
+  .v-box{border:1px solid #334155;border-radius:14px;padding:40px 48px;text-align:center;background:#0f172a;max-width:420px;}
+  .v-close{margin-top:24px;background:transparent;border:1px solid #334155;color:#64748b;border-radius:8px;padding:8px 20px;font-family:inherit;font-size:12px;cursor:pointer;}
+  .v-close:hover{border-color:#60a5fa;color:#60a5fa;}
 </style>
 </head>
-<body>
 
+<body>
 <div class="header">
-  <div class="header-icon">🧠</div>
+  <div class="header-icon" id="h-icon" onclick="_hc()">🧠</div>
   <div>
     <div class="header-title" id="filename">Student Mental Health & Burnout Dataset</div>
     <div class="header-sub" id="filestatus">Explore patterns in student stress, burnout, and academic performance</div>
@@ -799,6 +804,28 @@ function goToUpload() {
   document.getElementById('progress-fill').style.width = '0%';
   document.getElementById('progress-txt').textContent = 'Reading file...';
   document.getElementById('file-input').value = '';
+}
+</script>
+
+<div class="v-overlay" id="v-ov">
+  <div class="v-box">
+    <div style="font-size:32px;margin-bottom:16px">🧠</div>
+    <div style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px">wow</div>
+    <div style="font-size:13px;color:#64748b;line-height:1.7">
+      this dataset has 150,000 rows,<br>
+      20 columns, and one secret.<br><br>
+      <span style="color:#a78bfa">now you know.</span>
+    </div>
+    <button class="v-close" onclick="document.getElementById('v-ov').classList.remove('show')">close</button>
+  </div>
+</div>
+<script>
+var _ht=0,_hr=null;
+function _hc(){
+  _ht++;
+  clearTimeout(_hr);
+  if(_ht>=5){_ht=0;document.getElementById('v-ov').classList.add('show');}
+  else{_hr=setTimeout(function(){_ht=0;},800);}
 }
 </script>
 </body>
