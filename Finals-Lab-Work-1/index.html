@@ -120,6 +120,40 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .legend-metric { color: var(--subtle); font-size: 12px; }
 
+  /* DISTRIBUTION AGE CARD */
+  .age-dist-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 340px;
+  }
+  .age-dist-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .age-dist-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .age-dist-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .age-dist-svg {
+    width: 100%;
+    height: 220px;
+    display: block;
+  }
+
   /* GENDER FEATURE CARD */
   .gender-card {
     background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
@@ -497,12 +531,13 @@
     transition: width .9s ease;
   }
   .enroll-axis {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(var(--tick-count, 2), minmax(0, 1fr));
     font-size: 10px;
     color: #64748b;
     margin: 8px 2px 0 76px;
   }
+  .enroll-axis span { text-align: center; }
   .chart-tooltip {
     position: fixed;
     display: none;
@@ -808,6 +843,31 @@ function escAttr(value) {
     .replace(/>/g, '&gt;');
 }
 
+function niceStep(range, targetTicks = 6) {
+  const rough = Math.max(1, range / Math.max(2, targetTicks - 1));
+  const exp = Math.floor(Math.log10(rough));
+  const base = Math.pow(10, exp);
+  const f = rough / base;
+  let nice;
+  if (f <= 1) nice = 1;
+  else if (f <= 2) nice = 2;
+  else if (f <= 5) nice = 5;
+  else nice = 10;
+  return nice * base;
+}
+
+function buildNiceAxis(minV, maxV, ticks = 7) {
+  const range = Math.max(1, maxV - minV);
+  const step = niceStep(range, ticks);
+  const axisMin = Math.floor(minV / step) * step;
+  const axisMax = Math.ceil(maxV / step) * step;
+  const values = [];
+  for (let v = axisMin; v <= axisMax + step * 0.5; v += step) {
+    values.push(Math.round(v));
+  }
+  return { min: axisMin, max: axisMax, step, values };
+}
+
 // ── FILE HANDLING ──────────────────────────────────────
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
@@ -967,6 +1027,11 @@ function renderOverview() {
 function renderDistribution() {
   const dg = document.getElementById('donut-grid');
   dg.innerHTML = Object.entries(DS.categoricals).map(([key, data]) => {
+    if (isGenderColumn(key)) {
+      const ageCard = renderDistributionAgeCard();
+      if (ageCard) return ageCard;
+    }
+
     const total = Object.values(data).reduce((a,b)=>a+b,0);
     const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]);
     const topEntry = entries[0] || ['N/A', 0];
@@ -1000,6 +1065,76 @@ function renderDistribution() {
   }).join('');
 
   animateDistributionElements();
+}
+
+function findAgeHeader() {
+  return DS.headers.find(h => {
+    const normalized = normalizeKey(h);
+    return normalized === 'age' || normalized.includes('age');
+  });
+}
+
+function renderDistributionAgeCard() {
+  const ageHeader = findAgeHeader();
+  if (!ageHeader) return '';
+
+  const counts = {};
+  DS.rows.forEach(row => {
+    const n = Number(row[ageHeader]);
+    if (Number.isNaN(n)) return;
+    const age = Math.round(n);
+    counts[age] = (counts[age] || 0) + 1;
+  });
+
+  const ages = Object.keys(counts).map(Number).sort((a, b) => a - b).slice(0, 12);
+  if (!ages.length) return '';
+
+  const vals = ages.map(a => counts[a]);
+  const yMin = Math.min(...vals);
+  const yMax = Math.max(...vals);
+  const pad = Math.max(10, Math.ceil((yMax - yMin) * 0.35));
+  const ageAxis = buildNiceAxis(Math.max(0, yMin - pad), yMax + Math.ceil(pad * 0.4), 7);
+  const axisMin = ageAxis.min;
+  const axisMax = ageAxis.max;
+
+  const vbW = 520, vbH = 230;
+  const m = { top: 12, right: 14, bottom: 34, left: 42 };
+  const plotW = vbW - m.left - m.right;
+  const plotH = vbH - m.top - m.bottom;
+
+  const xAt = (idx) => m.left + (ages.length === 1 ? plotW / 2 : (idx / (ages.length - 1)) * plotW);
+  const yAt = (v) => m.top + (1 - (v - axisMin) / Math.max(1, (axisMax - axisMin))) * plotH;
+
+  const pts = ages.map((age, i) => ({ age, value: counts[age], x: xAt(i), y: yAt(counts[age]) }));
+  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
+  const areaPath = `${linePath} L${pts[pts.length - 1].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} L${pts[0].x.toFixed(2)} ${(m.top + plotH).toFixed(2)} Z`;
+
+  const tickVals = ageAxis.values;
+  const grid = tickVals.map((tickVal) => {
+    const t = (axisMax - tickVal) / Math.max(1, (axisMax - axisMin));
+    const y = m.top + t * plotH;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.5"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
+  }).join('');
+
+  const xLabels = pts.map((p) => `<text x="${p.x.toFixed(2)}" y="${(vbH - 10)}" text-anchor="middle" fill="#94a3b8" font-size="10">${p.age}</text>`).join('');
+  const dots = pts.map((p) => {
+    const tip = `Age Distribution • Age ${p.age}: ${p.value.toLocaleString()} students`;
+    return `<circle class="chart-hover-target" data-tip="${escAttr(tip)}" cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="4.3" fill="#a78bfa" stroke="#020617" stroke-width="1.4"></circle>`;
+  }).join('');
+
+  return `<div class="age-dist-card">
+    <div class="age-dist-overline">Chart B • Demographics</div>
+    <div class="age-dist-title">Age Distribution</div>
+    <div class="age-dist-sub">Number of students per age (${ages[0]}-${ages[ages.length - 1]})</div>
+    <svg class="age-dist-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
+      ${grid}
+      <path d="${areaPath}" fill="#a78bfa" opacity="0.18"></path>
+      <path d="${linePath}" fill="none" stroke="#a78bfa" stroke-width="2.4"></path>
+      ${dots}
+      ${xLabels}
+      <text x="${(m.left + plotW / 2).toFixed(2)}" y="${(vbH - 2)}" text-anchor="middle" fill="#64748b" font-size="10">Age</text>
+    </svg>
+  </div>`;
 }
 
 function isGenderColumn(key) {
@@ -1110,8 +1245,9 @@ function renderEnrollmentYearCard() {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const spread = Math.max(1, max - min);
-  const axisMin = Math.max(0, min - Math.ceil(spread * 0.2));
-  const axisMax = max + Math.ceil(spread * 0.15);
+  const enrollAxis = buildNiceAxis(Math.max(0, min - Math.ceil(spread * 0.2)), max + Math.ceil(spread * 0.15), 7);
+  const axisMin = enrollAxis.min;
+  const axisMax = enrollAxis.max;
 
   const kpis = years.map((y, i) => {
     const color = colorForLabel(y, i);
@@ -1138,7 +1274,7 @@ function renderEnrollmentYearCard() {
     <div class="enroll-head-sub">How many students are in each academic year</div>
     <div class="enroll-kpis">${kpis}</div>
     <div class="enroll-bars">${bars}</div>
-    <div class="enroll-axis"><span>${axisMin.toLocaleString()}</span><span>${axisMax.toLocaleString()}</span></div>
+    <div class="enroll-axis" style="--tick-count:${enrollAxis.values.length}">${enrollAxis.values.map(v => `<span>${v.toLocaleString()}</span>`).join('')}</div>
   </div>`;
 }
 
@@ -1173,8 +1309,9 @@ function renderBurnoutYearCard() {
   const rawMin = Math.min(...values);
   const rawMax = Math.max(...values);
   const spread = Math.max(1, rawMax - rawMin);
-  const yMin = Math.max(0, rawMin - Math.ceil(spread * 0.4));
-  const yMax = rawMax + Math.ceil(spread * 0.2);
+  const burnoutAxis = buildNiceAxis(Math.max(0, rawMin - Math.ceil(spread * 0.4)), rawMax + Math.ceil(spread * 0.2), 6);
+  const yMin = burnoutAxis.min;
+  const yMax = burnoutAxis.max;
 
   const vbW = 460, vbH = 190;
   const m = { top: 12, right: 10, bottom: 34, left: 44 };
@@ -1184,13 +1321,10 @@ function renderBurnoutYearCard() {
   const groupW = plotW / groups;
   const barW = Math.min(22, groupW * 0.22);
   const barGap = Math.max(4, barW * 0.25);
-  const ticks = 6;
-
-  const gridAndLabels = Array.from({ length: ticks }, (_, i) => {
-    const t = i / (ticks - 1);
+  const gridAndLabels = burnoutAxis.values.map((tickVal) => {
+    const t = (yMax - tickVal) / Math.max(1, (yMax - yMin));
     const y = m.top + t * plotH;
-    const val = Math.round(yMax - t * (yMax - yMin));
-    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${val.toLocaleString()}</text>`;
+    return `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(vbW - m.right)}" y2="${y.toFixed(2)}" stroke="#1e3358" stroke-width="1" opacity="0.65"></line><text x="${m.left - 8}" y="${(y + 4).toFixed(2)}" text-anchor="end" fill="#64748b" font-size="10">${tickVal.toLocaleString()}</text>`;
   }).join('');
 
   const bars = years.map((year, i) => {
