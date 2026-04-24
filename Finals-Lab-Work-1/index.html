@@ -194,6 +194,46 @@
     .chart-grid { grid-template-columns: 1fr; }
     .header-badges { margin-left: 0; width: 100%; }
   }
+
+  /* PREVIEW TOOLBAR */
+  .preview-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .preview-toolbar .search-input { margin-bottom: 0; flex: 1; min-width: 180px; }
+  .export-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: 1px solid #4ade80;
+    color: #021810;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .15s ease, filter .2s ease;
+  }
+  .export-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .export-btn:active { transform: translateY(0); }
+
+  /* MISSING VALUES */
+  .mv-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .mv-title { font-size: 16px; font-weight: 700; color: #f8fafc; }
+  .mv-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .mv-summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mv-chip { background: #0b1326; border: 1px solid var(--border2); border-radius: 999px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #cbd5e1; }
+  .mv-chip span { margin-right: 4px; }
+  .mv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .mv-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .mv-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .mv-col-name { font-size: 13px; font-weight: 700; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+  .mv-badge { font-size: 10px; font-weight: 700; border-radius: 999px; padding: 3px 10px; letter-spacing: .5px; }
+  .mv-badge.clean { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+  .mv-badge.warn  { background: #422006; color: #fb923c; border: 1px solid #9a3412; }
+  .mv-badge.crit  { background: #3f0000; color: #f87171; border: 1px solid #991b1b; }
+  .mv-stats { display: flex; gap: 16px; font-size: 11px; margin-bottom: 8px; }
+  .mv-stat-lbl { color: var(--muted); }
+  .mv-stat-val { color: var(--text); font-weight: 600; }
+  .mv-bar-track { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; }
+  .mv-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
 </style>
 </head>
 <body>
@@ -244,6 +284,9 @@
 
   <!-- OVERVIEW -->
   <div id="panel-overview" class="panel active">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="export-btn" onclick="exportCSV()">📤 Export Overview CSV</button>
+    </div>
     <div class="stat-grid" id="stat-grid"></div>
     <div class="chart-grid" id="chart-grid"></div>
   </div>
@@ -255,6 +298,9 @@
 
   <!-- PREVIEW -->
   <div id="panel-preview" class="panel">
+    <div class="preview-toolbar">
+      <input class="search-input" id="preview-search" placeholder="🔎 Search rows by any value..." oninput="filterPreviewRows()" />
+    </div>
     <div style="font-size:13px;color:var(--subtle);margin-bottom:12px" id="preview-hint"></div>
     <div class="table-wrap"><table id="preview-table"></table></div>
     <div class="more-rows" id="more-rows-txt"></div>
@@ -280,7 +326,7 @@
       </div>
     </div>
     <input class="search-input" id="col-search" placeholder="Search columns..." oninput="filterCols()" />
-    <div class="col-grid" id="col-grid"></div>
+        <div class="col-grid" id="col-grid"></div>
   </div>
 </div>
 
@@ -439,7 +485,7 @@ function renderOverview() {
     const bars = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([lbl,v],i)=>`
       <div class="bar-row">
         <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val" data-count="${v}">0</span></div>
-        <div class="bar-track"><div class="bar-fill" data-width="${(v/maxVal*100).toFixed(1)}" style="width:0%;background:${colorForLabel(lbl, i)}"></div></div>
+        <div class="bar-track"><div class="bar-fill" data-width="${(v/DS.rows.length*100).toFixed(1)}" style="width:0%;background:${colorForLabel(lbl, i)}"></div></div>
       </div>`).join('');
     return `<div class="chart-box"><div class="chart-title">${k.replace(/_/g,' ')}</div>${bars}</div>`;
   }).join('');
@@ -546,23 +592,135 @@ function arc(start, end) {
 }
 
 // PREVIEW
+let _previewRows = [];
+
 function renderPreview() {
   const maxPreviewRows = 500;
-  const previewRows = DS.rows.slice(0, maxPreviewRows);
+  _previewRows = DS.rows.slice(0, maxPreviewRows);
   document.getElementById('preview-hint').textContent =
-    `Showing ${previewRows.length.toLocaleString()} of ${DS.rows.length.toLocaleString()} rows`;
+    `Showing ${_previewRows.length.toLocaleString()} of ${DS.rows.length.toLocaleString()} rows`;
   const thead = `<thead><tr>${DS.headers.map(h=>`<th><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${DS.types[h]==='numeric'?'#60a5fa':DS.types[h]==='categorical'?'#a78bfa':'#f59e0b'};margin-right:5px;vertical-align:middle"></span>${h}</th>`).join('')}</tr></thead>`;
-  const tbody = `<tbody>${previewRows.map(row=>`<tr>${DS.headers.map(h=>{
+  const tbody = `<tbody>${_previewRows.map(row=>`<tr>${DS.headers.map(h=>{
     const v=row[h]||''; const color = colorForLabel(v, 0, false);
     return `<td style="${color?`color:${color};font-weight:600`:''}">  ${v}</td>`;
   }).join('')}</tr>`).join('')}</tbody>`;
   document.getElementById('preview-table').innerHTML = thead+tbody;
   document.getElementById('more-rows-txt').textContent =
     DS.rows.length > maxPreviewRows
-      ? `Preview is limited to ${maxPreviewRows.toLocaleString()} rows for smoother performance.`
+      ? `Preview is limited to ${maxPreviewRows.toLocaleString()} rows.`
       : '';
 }
 
+let _searchTimer = null;
+
+function filterPreviewRows() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => {
+    const q = document.getElementById('preview-search').value.toLowerCase().trim();
+    const RENDER_CAP = 200;
+
+    if (!q) {
+      const slice = DS.rows.slice(0, 500);
+      document.getElementById('preview-hint').textContent =
+        `Showing first 500 of ${DS.rows.length.toLocaleString()} rows`;
+      rebuildTableBody(slice);
+      return;
+    }
+
+    const matched = DS.rows.filter(row =>
+      DS.headers.some(h => String(row[h]||'').toLowerCase().includes(q))
+    );
+    const rendered = matched.slice(0, RENDER_CAP);
+    document.getElementById('preview-hint').textContent =
+      `Found ${matched.length.toLocaleString()} matches across all ${DS.rows.length.toLocaleString()} rows` +
+      (matched.length > RENDER_CAP ? ` — showing first ${RENDER_CAP}` : '');
+    rebuildTableBody(rendered);
+  }, 300);
+}
+
+function rebuildTableBody(rows) {
+  const table = document.getElementById('preview-table');
+  const thead = table.querySelector('thead');
+  const tbody = document.createElement('tbody');
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    DS.headers.forEach(h => {
+      const td = document.createElement('td');
+      const v = row[h] || '';
+      const color = colorForLabel(v, 0, false);
+      if (color) { td.style.color = color; td.style.fontWeight = '600'; }
+      td.textContent = '  ' + v;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.innerHTML = '';
+  if (thead) table.appendChild(thead);
+  table.appendChild(tbody);
+}
+
+function exportCSV() {
+  const lines = [];
+
+  lines.push('CATEGORICAL DISTRIBUTIONS');
+  lines.push('column,value,count,percent');
+  Object.entries(DS.categoricals).forEach(([col, data]) => {
+    const total = Object.values(data).reduce((a,b) => a+b, 0);
+    Object.entries(data)
+      .sort((a,b) => b[1]-a[1])
+      .forEach(([val, count]) => {
+        const pct = (count / total * 100).toFixed(1);
+        lines.push(`${col},${val},${count},${pct}%`);
+      });
+    lines.push('');
+  });
+
+  lines.push('NUMERIC SUMMARY');
+  lines.push('column,min,max,mean,median,std_dev,count');
+  Object.entries(DS.numerics).forEach(([col, s]) => {
+    lines.push(`${col},${s.min},${s.max},${s.mean},${s.median},${s.std},${s.count}`);
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (document.getElementById('filename').textContent || 'overview') + '_overview.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderMissing() {
+  const totalRows = DS.rows.length;
+  let cleanCount = 0, dirtyCount = 0;
+  const cards = DS.headers.map(col => {
+    const missing = DS.rows.filter(r => !r[col] || String(r[col]).trim() === '' || String(r[col]).trim() === 'null' || String(r[col]).trim() === 'NA').length;
+    const pct = totalRows > 0 ? (missing / totalRows * 100) : 0;
+    const present = totalRows - missing;
+    if (missing === 0) cleanCount++; else dirtyCount++;
+    const badgeClass = pct === 0 ? 'clean' : pct < 20 ? 'warn' : 'crit';
+    const badgeLabel = pct === 0 ? 'COMPLETE' : pct < 20 ? 'PARTIAL' : 'CRITICAL';
+    const barColor = pct === 0 ? '#22c55e' : pct < 20 ? '#f59e0b' : '#ef4444';
+    return `<div class="mv-card">
+      <div class="mv-card-top">
+        <div class="mv-col-name" title="${col}">${col}</div>
+        <div class="mv-badge ${badgeClass}">${badgeLabel}</div>
+      </div>
+      <div class="mv-stats">
+        <div><div class="mv-stat-lbl">missing</div><div class="mv-stat-val" style="color:${barColor}">${missing.toLocaleString()}</div></div>
+        <div><div class="mv-stat-lbl">present</div><div class="mv-stat-val">${present.toLocaleString()}</div></div>
+        <div><div class="mv-stat-lbl">% missing</div><div class="mv-stat-val">${pct.toFixed(1)}%</div></div>
+      </div>
+      <div class="mv-bar-track"><div class="mv-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>
+    </div>`;
+  });
+  document.getElementById('mv-grid').innerHTML = cards.join('');
+  document.getElementById('mv-total-cols').textContent = DS.headers.length;
+  document.getElementById('mv-clean-cols').textContent = cleanCount;
+  document.getElementById('mv-dirty-cols').textContent = dirtyCount;
+  document.getElementById('mv-sub').textContent =
+    `${cleanCount} of ${DS.headers.length} columns are fully complete · ${totalRows.toLocaleString()} rows scanned`;
+}
 // NUMERIC STATS
 function renderNumeric() {
   const ng = document.getElementById('num-grid');
