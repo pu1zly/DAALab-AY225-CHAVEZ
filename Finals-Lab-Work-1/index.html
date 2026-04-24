@@ -36,8 +36,7 @@
   --text: #0f172a;
   --muted: #64748b;
   --subtle: #475569;
-  }
-
+}
   body.light .col-card { background: linear-gradient(180deg,#e8f0fe 0%,#dde8fd 100%); border-color: #bfcfee; }
   body.light tbody tr:nth-child(even) { background: #eef2f9; }
   body.light tbody tr:nth-child(odd)  { background: #f5f8ff; }
@@ -1151,7 +1150,7 @@ function renderDistributionAgeCard() {
   }).join('');
 
   return `<div class="age-dist-card">
-    <div class="age-dist-overline">Age</div>
+    <div class="age-dist-overline">Chart B • Age</div>
     <div class="age-dist-title">Age Distribution</div>
     <div class="age-dist-sub">Number of students per age (${ages[0]}-${ages[ages.length - 1]})</div>
     <svg class="age-dist-svg" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none">
