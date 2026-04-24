@@ -120,6 +120,202 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .legend-metric { color: var(--subtle); font-size: 12px; }
 
+  /* GENDER FEATURE CARD */
+  .gender-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .gender-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .gender-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .gender-head-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .gender-layout {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .gender-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--bg);
+  }
+  .gender-ring::before {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .6);
+  }
+  .gender-ring-center {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+  .gender-groups {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #f8fafc;
+    font-weight: 700;
+  }
+  .gender-groups-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .gender-list {
+    display: grid;
+    gap: 8px;
+  }
+  .gender-item {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .gender-item-name {
+    color: var(--subtle);
+    font-size: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+  .gender-item-value {
+    font-size: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* STRESS FEATURE CARD */
+  .stress-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .stress-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .stress-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .stress-head-sub {
+    color: var(--subtle);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .stress-layout {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .stress-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--bg);
+  }
+  .stress-ring::before {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .6);
+  }
+  .stress-ring-center {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+  .stress-levels-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #f8fafc;
+    font-weight: 700;
+  }
+  .stress-levels-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .stress-list {
+    display: grid;
+    gap: 8px;
+  }
+  .stress-item {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stress-item-name {
+    color: var(--subtle);
+    font-size: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+  .stress-item-value {
+    font-size: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
   .animate-rise {
     animation: riseIn .5s ease both;
   }
@@ -188,6 +384,24 @@
   @media(max-width:700px){
     .donut-grid { grid-template-columns: 1fr; }
     .num-grid { grid-template-columns: 1fr; }
+
+    .gender-card { padding: 20px; min-height: 280px; }
+    .gender-head-title { font-size: 24px; }
+    .gender-head-sub { font-size: 12px; }
+    .gender-layout { grid-template-columns: 1fr; justify-items: center; }
+    .gender-ring { width: 130px; height: 130px; }
+    .gender-ring::before { inset: 20px; }
+    .gender-item-name { font-size: 14px; }
+    .gender-item-value { font-size: 22px; }
+
+    .stress-card { padding: 20px; min-height: 280px; }
+    .stress-head-title { font-size: 24px; }
+    .stress-head-sub { font-size: 12px; }
+    .stress-layout { grid-template-columns: 1fr; justify-items: center; }
+    .stress-ring { width: 130px; height: 130px; }
+    .stress-ring::before { inset: 20px; }
+    .stress-item-name { font-size: 14px; }
+    .stress-item-value { font-size: 22px; }
   }
 
   @media(max-width:600px){
@@ -485,8 +699,15 @@ function renderOverview() {
   const cg = document.getElementById('chart-grid');
   const catKeys = Object.keys(DS.categoricals).slice(0,4);
   cg.innerHTML = catKeys.map(k => {
+    if (isStressColumn(k)) {
+      return renderStressCard(k, DS.categoricals[k]);
+    }
+
+    if (isGenderColumn(k)) {
+      return renderGenderCard(k, DS.categoricals[k]);
+    }
+
     const data = DS.categoricals[k];
-    const maxVal = Math.max(...Object.values(data));
     const bars = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([lbl,v],i)=>`
       <div class="bar-row">
         <div class="bar-meta"><span class="bar-lbl">${lbl}</span><span class="bar-val" data-count="${v}">0</span></div>
@@ -535,6 +756,90 @@ function renderDistribution() {
   animateDistributionElements();
 }
 
+function isGenderColumn(key) {
+  const normalized = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return normalized === 'gender' || normalized.includes('gender');
+}
+
+function isStressColumn(key) {
+  const normalized = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return normalized === 'stresslevel' || (normalized.includes('stress') && normalized.includes('level'));
+}
+
+function renderGenderCard(key, data) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((acc, [, v]) => acc + v, 0);
+
+  let cursor = 0;
+  const segments = entries.map(([label, value], i) => {
+    const pct = total > 0 ? value / total : 0;
+    const start = (cursor * 360).toFixed(2);
+    cursor += pct;
+    const end = (cursor * 360).toFixed(2);
+    return `${colorForLabel(label, i)} ${start}deg ${end}deg`;
+  }).join(', ');
+
+  const gradient = segments || '#334155 0deg 360deg';
+
+  const rows = entries.map(([label, value], i) => `
+    <div class="gender-item">
+      <div class="gender-item-name">${label}</div>
+      <div class="gender-item-value" style="color:${colorForLabel(label, i)}" data-count="${value}">0</div>
+    </div>`).join('');
+
+  return `<div class="gender-card">
+    <div class="gender-head-overline">Chart 1 • Demographics</div>
+    <div class="gender-head-title">Gender Distribution</div>
+    <div class="gender-head-sub">Breakdown by gender identity</div>
+    <div class="gender-layout">
+      <div class="gender-ring" style="background:conic-gradient(${gradient})">
+        <div class="gender-ring-center">
+          <div class="gender-groups" data-count="${entries.length}">0</div>
+          <div class="gender-groups-label">Groups</div>
+        </div>
+      </div>
+      <div class="gender-list">${rows}</div>
+    </div>
+  </div>`;
+}
+
+function renderStressCard(key, data) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((acc, [, v]) => acc + v, 0);
+
+  let cursor = 0;
+  const segments = entries.map(([label, value], i) => {
+    const pct = total > 0 ? value / total : 0;
+    const start = (cursor * 360).toFixed(2);
+    cursor += pct;
+    const end = (cursor * 360).toFixed(2);
+    return `${colorForLabel(label, i)} ${start}deg ${end}deg`;
+  }).join(', ');
+
+  const gradient = segments || '#334155 0deg 360deg';
+
+  const rows = entries.map(([label, value], i) => `
+    <div class="stress-item">
+      <div class="stress-item-name">${label}</div>
+      <div class="stress-item-value" style="color:${colorForLabel(label, i)}" data-count="${value}">0</div>
+    </div>`).join('');
+
+  return `<div class="stress-card">
+    <div class="stress-head-overline">Chart 4 • Mental Health</div>
+    <div class="stress-head-title">Stress Level</div>
+    <div class="stress-head-sub">Overall stress distribution</div>
+    <div class="stress-layout">
+      <div class="stress-ring" style="background:conic-gradient(${gradient})">
+        <div class="stress-ring-center">
+          <div class="stress-levels-count" data-count="${entries.length}">0</div>
+          <div class="stress-levels-label">Levels</div>
+        </div>
+      </div>
+      <div class="stress-list">${rows}</div>
+    </div>
+  </div>`;
+}
+
 function animateNumber(el, endValue, duration = 800, decimals = 0) {
   const start = performance.now();
   const target = Number(endValue) || 0;
@@ -561,6 +866,14 @@ function animateOverviewElements() {
 
   document.querySelectorAll('#panel-overview .stat-val[data-count], #panel-overview .bar-val[data-count]').forEach((el) => {
     animateNumber(el, el.dataset.count, 750, 0);
+  });
+
+  document.querySelectorAll('#panel-overview .gender-item-value[data-count], #panel-overview .gender-groups[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 0);
+  });
+
+  document.querySelectorAll('#panel-overview .stress-item-value[data-count], #panel-overview .stress-levels-count[data-count]').forEach((el) => {
+    animateNumber(el, el.dataset.count, 800, 0);
   });
 
   document.querySelectorAll('#panel-overview .bar-fill[data-width]').forEach((bar, i) => {
