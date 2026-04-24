@@ -412,6 +412,97 @@
     font-size: 12px;
     margin-top: 12px;
   }
+
+  /* ENROLLMENT BY YEAR CARD */
+  .enroll-card {
+    background: linear-gradient(180deg, var(--bg2) 0%, #0d172b 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    min-height: 280px;
+    box-shadow: inset 0 0 0 1px rgba(51, 65, 85, .45);
+  }
+  .enroll-head-overline {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .enroll-head-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    line-height: 1.05;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .enroll-head-sub {
+    color: var(--subtle);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .enroll-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .enroll-kpi {
+    background: #0b1326;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .enroll-kpi-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .enroll-kpi-lbl {
+    margin-top: 4px;
+    font-size: 10px;
+    letter-spacing: .8px;
+    color: var(--subtle);
+    text-transform: uppercase;
+  }
+  .enroll-bars {
+    display: grid;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .enroll-row {
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+  .enroll-row-lbl {
+    color: var(--subtle);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .enroll-track {
+    background: #13233f;
+    border-radius: 7px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .enroll-fill {
+    height: 100%;
+    border-radius: 7px;
+    width: 0%;
+    transition: width .9s ease;
+  }
+  .enroll-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #64748b;
+    margin: 8px 2px 0 76px;
+  }
   .chart-tooltip {
     position: fixed;
     display: none;
@@ -536,6 +627,10 @@
     .burnout-head-title { font-size: 24px; }
     .burnout-head-sub { font-size: 12px; }
     .burnout-svg { height: 165px; }
+
+    .enroll-head-title { font-size: 20px; }
+    .enroll-row { grid-template-columns: 58px 1fr; }
+    .enroll-axis { margin-left: 66px; }
   }
 
   @media(max-width:600px){
@@ -848,10 +943,12 @@ function renderOverview() {
   if (hasBurnoutYearData()) cards.push(renderBurnoutYearCard());
   if (stressKey) cards.push(renderStressCard(stressKey, DS.categoricals[stressKey]));
   if (genderKey) cards.push(renderGenderCard(genderKey, DS.categoricals[genderKey]));
+  if (hasEnrollmentData()) cards.push(renderEnrollmentYearCard());
 
   const remainingKeys = allCatKeys.filter(k => {
     if (k === genderKey || k === stressKey) return false;
     if (isCourseColumn(k) || isSleepQualityColumn(k)) return false;
+    if (isInternetQualityColumn(k)) return false;
     if (isBurnoutLevelColumn(k) || isYearColumn(k)) return false;
     return true;
   });
@@ -929,6 +1026,11 @@ function isSleepQualityColumn(key) {
   return normalized === 'sleepquality' || (normalized.includes('sleep') && normalized.includes('quality'));
 }
 
+function isInternetQualityColumn(key) {
+  const normalized = normalizeKey(key);
+  return normalized === 'internetquality' || (normalized.includes('internet') && normalized.includes('quality'));
+}
+
 function isBurnoutLevelColumn(key) {
   const normalized = normalizeKey(key);
   return normalized === 'burnoutlevel' || (normalized.includes('burnout') && normalized.includes('level'));
@@ -959,6 +1061,10 @@ function hasBurnoutYearData() {
   return Boolean(findHeaderBy(isBurnoutLevelColumn) && findHeaderBy(isYearColumn));
 }
 
+function hasEnrollmentData() {
+  return Boolean(findHeaderBy(isYearColumn));
+}
+
 function yearSortRank(label) {
   const text = String(label || '').toLowerCase();
   const n = parseInt((text.match(/\d+/) || [])[0], 10);
@@ -968,6 +1074,72 @@ function yearSortRank(label) {
   if (text.includes('third')) return 3;
   if (text.includes('fourth')) return 4;
   return 999;
+}
+
+function compactYearLabel(label) {
+  const text = String(label || '').trim();
+  const lower = text.toLowerCase();
+  const n = parseInt((lower.match(/\d+/) || [])[0], 10);
+  if (!Number.isNaN(n)) return `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
+  if (lower.includes('first')) return '1st';
+  if (lower.includes('second')) return '2nd';
+  if (lower.includes('third')) return '3rd';
+  if (lower.includes('fourth')) return '4th';
+  return text;
+}
+
+function renderEnrollmentYearCard() {
+  const yearHeader = findHeaderBy(isYearColumn);
+  if (!yearHeader) {
+    return `<div class="enroll-card"><div class="enroll-head-overline">Chart A • Enrollment</div><div class="enroll-head-title">Year of Study - Enrollment Count</div><div class="enroll-head-sub">How many students are in each academic year</div><div class="burnout-empty">No year column found in this dataset.</div></div>`;
+  }
+
+  const counts = {};
+  DS.rows.forEach(row => {
+    const y = String(row[yearHeader] || '').trim();
+    if (!y) return;
+    counts[y] = (counts[y] || 0) + 1;
+  });
+
+  const years = Object.keys(counts).sort((a, b) => yearSortRank(a) - yearSortRank(b)).slice(0, 4);
+  if (!years.length) {
+    return `<div class="enroll-card"><div class="enroll-head-overline">Chart A • Enrollment</div><div class="enroll-head-title">Year of Study - Enrollment Count</div><div class="enroll-head-sub">How many students are in each academic year</div><div class="burnout-empty">No year-group values found.</div></div>`;
+  }
+
+  const values = years.map(y => counts[y]);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const spread = Math.max(1, max - min);
+  const axisMin = Math.max(0, min - Math.ceil(spread * 0.2));
+  const axisMax = max + Math.ceil(spread * 0.15);
+
+  const kpis = years.map((y, i) => {
+    const color = colorForLabel(y, i);
+    return `<div class="enroll-kpi">
+      <div class="enroll-kpi-val" style="color:${color}">${counts[y].toLocaleString()}</div>
+      <div class="enroll-kpi-lbl">${String(y).toUpperCase()}</div>
+    </div>`;
+  }).join('');
+
+  const bars = years.map((y, i) => {
+    const value = counts[y];
+    const pct = ((value - axisMin) / Math.max(1, axisMax - axisMin)) * 100;
+    const width = Math.max(24, Math.min(100, pct));
+    const color = colorForLabel(y, i);
+    return `<div class="enroll-row chart-hover-target" data-tip="${escAttr(`${y} • ${value.toLocaleString()} students`)}">
+      <div class="enroll-row-lbl">${compactYearLabel(y)}</div>
+      <div class="enroll-track"><div class="enroll-fill" data-width="${width.toFixed(1)}" style="background:${color}"></div></div>
+    </div>`;
+  }).join('');
+
+  return `<div class="enroll-card">
+    <div class="enroll-head-overline">Chart A • Enrollment</div>
+    <div class="enroll-head-title">Year of Study - Enrollment Count</div>
+    <div class="enroll-head-sub">How many students are in each academic year</div>
+    <div class="enroll-kpis">${kpis}</div>
+    <div class="enroll-bars">${bars}</div>
+    <div class="enroll-axis"><span>${axisMin.toLocaleString()}</span><span>${axisMax.toLocaleString()}</span></div>
+  </div>`;
 }
 
 function renderBurnoutYearCard() {
@@ -1175,6 +1347,13 @@ function animateOverviewElements() {
     setTimeout(() => {
       bar.style.width = `${bar.dataset.width}%`;
     }, 60 + i * 45);
+  });
+
+  document.querySelectorAll('#panel-overview .enroll-fill[data-width]').forEach((bar, i) => {
+    bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.width = `${bar.dataset.width}%`;
+    }, 80 + i * 60);
   });
 
   animateBurnoutBars();
