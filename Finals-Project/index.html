@@ -42,7 +42,7 @@
     .task-list li::before{content:'▸  '}
     .task-list code{background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:.72rem;color:var(--text)}
     .branch-tag{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:.66rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:3px 9px;color:var(--text-dim)}
-    main{max-width:1260px;margin:0 auto;padding:48px 36px;display:flex;flex-direction:column;gap:56px}
+    main{max-width:1400px;margin:0 auto;padding:48px 36px;display:flex;flex-direction:column;gap:56px}
     .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid var(--navy)}
     .section-head-left{display:flex;align-items:baseline;gap:16px}
     .section-num{font-family:var(--display);font-size:3rem;font-weight:900;color:var(--border);line-height:1;margin-right:4px}
@@ -57,7 +57,7 @@
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)}
     .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;align-items:center}
     input[type="text"],select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.76rem;padding:8px 12px;border-radius:var(--radius);outline:none;transition:border-color .2s,box-shadow .2s}
-    input[type="text"]{width:220px}
+    input[type="text"]{width:320px}
     input[type="text"]:focus,select:focus{border-color:var(--coral);box-shadow:0 0 0 3px rgba(217,79,61,.12)}
     button{font-family:var(--mono);font-size:.74rem;padding:8px 16px;border-radius:var(--radius);cursor:pointer;transition:all .18s;border:1px solid var(--border);background:var(--surface2);color:var(--text);letter-spacing:.3px}
     button:hover{border-color:var(--coral);color:var(--coral);background:#fff3f2}
@@ -212,14 +212,28 @@
     </div>
     <div class="panel">
       <div class="toolbar">
-        <input type="text" id="filterInput" placeholder="Filter by student name…" />
+        <input type="text" id="filterInput" placeholder="Filter by student ID, Age, Gender..." />
         <select id="sortSelect">
-          <option value="">Sort by…</option>
-          <option value="name">Name (A–Z)</option>
-          <option value="studyHours">Study Hours ↓</option>
-          <option value="score">Final Score ↓</option>
-          <option value="attendance">Attendance % ↓</option>
-          <option value="grade">Grade (A first)</option>
+            <option value="">Sort by…</option>
+            <option value="student_id">Student ID ↑</option>
+            <option value="age_asc">Age ↑</option>
+            <option value="age_desc">Age ↓</option>
+            <option value="daily_study_hours_desc">Study Hrs ↓</option>
+            <option value="daily_study_hours_asc">Study Hrs ↑</option>
+            <option value="daily_sleep_hours_desc">Sleep Hrs ↓</option>
+            <option value="screen_time_hours_desc">Screen Time ↓</option>
+            <option value="stress_level">Stress Level (High first)</option>
+            <option value="anxiety_score_desc">Anxiety Score ↓</option>
+            <option value="depression_score_desc">Depression Score ↓</option>
+            <option value="academic_pressure_desc">Academic Pressure ↓</option>
+            <option value="financial_stress_desc">Financial Stress ↓</option>
+            <option value="social_support_desc">Social Support ↓</option>
+            <option value="physical_activity_desc">Physical Activity ↓</option>
+            <option value="attendance_desc">Attendance % ↓</option>
+            <option value="attendance_asc">Attendance % ↑</option>
+            <option value="cgpa_desc">CGPA ↓</option>
+            <option value="cgpa_asc">CGPA ↑</option>
+            <option value="burnout_level">Burnout (High first)</option>
         </select>
         <button class="primary" onclick="applyFilterSort()">Apply</button>
         <button onclick="resetTable()">Reset</button>
@@ -227,13 +241,31 @@
       </div>
       <div class="table-scroll">
         <table id="dataTable">
-          <thead>
-            <tr>
-              <th>#</th><th>Student Name</th><th>Study Hrs/Wk</th><th>Attendance %</th>
-              <th>Midterm</th><th>Final Score</th><th>Assignments</th>
-              <th>Sleep Hrs</th><th>Part-time Job</th><th>Grade</th>
+         <thead>
+            <tr id="tableHead">
+                <th>#</th>
+                <th>Student ID</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Course</th>
+                <th>Year</th>
+                <th>Study Hrs/Day</th>
+                <th>Sleep Hrs</th>
+                <th>Screen Time</th>
+                <th>Stress Level</th>
+                <th>Anxiety</th>
+                <th>Depression</th>
+                <th>Academic Pressure</th>
+                <th>Financial Stress</th>
+                <th>Social Support</th>
+                <th>Physical Activity</th>
+                <th>Sleep Quality</th>
+                <th>Attendance %</th>
+                <th>CGPA</th>
+                <th>Internet Quality</th>
+                <th>Burnout</th>
             </tr>
-          </thead>
+        </thead>
           <tbody id="tableBody">
             <tr>
               <td colspan="10" style="text-align:center;padding:50px;color:var(--text-dim)">
@@ -520,51 +552,49 @@ function median(arr) { if(!arr||arr.length===0)return 0; const s=[...arr].sort((
 /* ZONE 1: STUDENT 1 STUBS */
 function loadDataset() {
   fetch('student_mental_health_burnout.csv')
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error('CSV not found: ' + res.status);
+      return res.text();
+    })
     .then(text => {
       const lines = text.trim().split('\n');
-      const headers = lines[0].split(',');
-      window.DS = lines.slice(1).map((line, i) => {
+      const headers = lines[0].split(',').map(h => h.trim());
+      window.DS = lines.slice(1).map(line => {
         const vals = line.split(',');
         const row = {};
-        headers.forEach((h, j) => row[h.trim()] = vals[j]?.trim());
+        headers.forEach((h, j) => { row[h] = vals[j]?.trim() ?? ''; });
         return row;
       });
-      renderTable(window.DS.slice(0, 100)); // show first 100 rows for performance
+      console.log('✅ CSV loaded:', window.DS.length, 'rows | first row:', window.DS[0]);
       renderSummaryCards(window.DS);
+      renderTable(window.DS.slice(0, 20));
       onDataReady();
     })
-    .catch(err => console.error('Failed to load CSV:', err));
+    .catch(err => {
+      console.error('❌ loadDataset() failed:', err);
+      document.getElementById('tableBody').innerHTML =
+        `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--coral)">
+          ❌ Could not load CSV: ${err.message}<br>
+          <small>Make sure student_mental_health_burnout.csv is in the same folder as index.html</small>
+        </td></tr>`;
+    });
 }
 function renderTable(data) {
-  const thead = document.querySelector('#dataTable thead tr');
-  const tbody = document.getElementById('tableBody');
+  const tbody    = document.getElementById('tableBody');
   const rowCount = document.getElementById('rowCount');
+  const total    = window.DS ? window.DS.length : data.length;
 
-  rowCount.textContent = `${data.length} row${data.length !== 1 ? 's' : ''} shown`;
+  rowCount.textContent = `${total.toLocaleString()} total (showing ${data.length})`;
 
-  thead.innerHTML = `
-    <th>#</th>
-    <th>Student ID</th>
-    <th>Age</th>
-    <th>Gender</th>
-    <th>Course</th>
-    <th>Year</th>
-    <th>Study Hrs/Day</th>
-    <th>Sleep Hrs</th>
-    <th>Stress Level</th>
-    <th>Attendance %</th>
-    <th>CGPA</th>
-    <th>Burnout</th>
-  `;
-
-  if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text-dim)">No matching records found.</td></tr>`;
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--text-dim)">No matching records found.</td></tr>`;
     return;
   }
 
   const burnoutClass = { High: 'gD', Medium: 'gC', Low: 'gA' };
   const stressClass  = { High: 'gD', Medium: 'gC', Low: 'gA' };
+  const sleepClass   = { Good: 'gA', Average: 'gC', Poor: 'gD' };
+  const netClass     = { Good: 'gA', Average: 'gC', Poor: 'gD' };
 
   tbody.innerHTML = data.map((row, i) => `
     <tr>
@@ -576,9 +606,18 @@ function renderTable(data) {
       <td>${row.year}</td>
       <td class="num">${row.daily_study_hours}</td>
       <td class="num">${row.daily_sleep_hours}</td>
+      <td class="num">${row.screen_time_hours}</td>
       <td class="${stressClass[row.stress_level] || ''}">${row.stress_level}</td>
+      <td class="num">${row.anxiety_score}</td>
+      <td class="num">${row.depression_score}</td>
+      <td class="num">${row.academic_pressure_score}</td>
+      <td class="num">${row.financial_stress_score}</td>
+      <td class="num">${row.social_support_score}</td>
+      <td class="num">${row.physical_activity_hours}</td>
+      <td class="${sleepClass[row.sleep_quality] || ''}">${row.sleep_quality}</td>
       <td class="num">${row.attendance_percentage}</td>
       <td class="num">${row.cgpa}</td>
+      <td class="${netClass[row.internet_quality] || ''}">${row.internet_quality}</td>
       <td class="${burnoutClass[row.burnout_level] || ''}">${row.burnout_level}</td>
     </tr>
   `).join('');
@@ -586,9 +625,6 @@ function renderTable(data) {
 function applyFilterSort() {
   const query   = document.getElementById('filterInput').value.trim().toLowerCase();
   const sortKey = document.getElementById('sortSelect').value;
-
-  // update placeholder hint
-  document.getElementById('filterInput').placeholder = 'Filter by student ID, course, gender…';
 
   let data = window.DS.filter(row => {
     if (!query) return true;
@@ -598,31 +634,49 @@ function applyFilterSort() {
       row.gender?.toLowerCase().includes(query) ||
       row.year?.toLowerCase().includes(query) ||
       row.burnout_level?.toLowerCase().includes(query) ||
-      row.stress_level?.toLowerCase().includes(query)
+      row.stress_level?.toLowerCase().includes(query) ||
+      row.sleep_quality?.toLowerCase().includes(query) ||
+      row.internet_quality?.toLowerCase().includes(query)
     );
   });
 
-  if (sortKey === 'name') {
-    data = [...data].sort((a, b) => a.student_id - b.student_id);
-  } else if (sortKey === 'studyHours') {
-    data = [...data].sort((a, b) => b.daily_study_hours - a.daily_study_hours);
-  } else if (sortKey === 'score') {
-    data = [...data].sort((a, b) => b.cgpa - a.cgpa);
-  } else if (sortKey === 'attendance') {
-    data = [...data].sort((a, b) => b.attendance_percentage - a.attendance_percentage);
-  } else if (sortKey === 'grade') {
-    const order = { Low: 1, Medium: 2, High: 3 };
-    data = [...data].sort((a, b) => (order[a.burnout_level] || 9) - (order[b.burnout_level] || 9));
+  const levelOrder = { High: 3, Medium: 2, Low: 1 };
+  const qualOrder  = { Good: 3, Average: 2, Poor: 1 };
+
+  const sorters = {
+    student_id:              (a, b) => a.student_id - b.student_id,
+    age_asc:                 (a, b) => a.age - b.age,
+    age_desc:                (a, b) => b.age - a.age,
+    daily_study_hours_desc:  (a, b) => b.daily_study_hours - a.daily_study_hours,
+    daily_study_hours_asc:   (a, b) => a.daily_study_hours - b.daily_study_hours,
+    daily_sleep_hours_desc:  (a, b) => b.daily_sleep_hours - a.daily_sleep_hours,
+    screen_time_hours_desc:  (a, b) => b.screen_time_hours - a.screen_time_hours,
+    stress_level:            (a, b) => (levelOrder[b.stress_level] || 0) - (levelOrder[a.stress_level] || 0),
+    anxiety_score_desc:      (a, b) => b.anxiety_score - a.anxiety_score,
+    depression_score_desc:   (a, b) => b.depression_score - a.depression_score,
+    academic_pressure_desc:  (a, b) => b.academic_pressure_score - a.academic_pressure_score,
+    financial_stress_desc:   (a, b) => b.financial_stress_score - a.financial_stress_score,
+    social_support_desc:     (a, b) => b.social_support_score - a.social_support_score,
+    physical_activity_desc:  (a, b) => b.physical_activity_hours - a.physical_activity_hours,
+    attendance_desc:         (a, b) => b.attendance_percentage - a.attendance_percentage,
+    attendance_asc:          (a, b) => a.attendance_percentage - b.attendance_percentage,
+    cgpa_desc:               (a, b) => b.cgpa - a.cgpa,
+    cgpa_asc:                (a, b) => a.cgpa - b.cgpa,
+    burnout_level:           (a, b) => (levelOrder[b.burnout_level] || 0) - (levelOrder[a.burnout_level] || 0),
+  };
+
+  if (sortKey && sorters[sortKey]) {
+    data = [...data].sort(sorters[sortKey]);
   }
 
-  renderTable(data.slice(0, 100));
-  document.getElementById('rowCount').textContent = `${data.length.toLocaleString()} match${data.length !== 1 ? 'es' : ''} (showing ${Math.min(data.length, 100)})`;
+  renderTable(data.slice(0, 20));
+  document.getElementById('rowCount').textContent = `${data.length.toLocaleString()} match${data.length !== 1 ? 'es' : ''} (showing ${Math.min(data.length, 20)})`;
 }
 function resetTable() {
   document.getElementById('filterInput').value = '';
   document.getElementById('sortSelect').value = '';
-  renderTable(window.DS.slice(0, 100));
-  document.getElementById('rowCount').textContent = `${window.DS.length.toLocaleString()} total (showing 100)`;
+  renderTable(window.DS.slice(0, 20));
+  document.getElementById('rowCount').textContent = `${window.DS.length.toLocaleString()} total (showing 20)`;
 }
 function renderSummaryCards(data) {
   const cgpaVals       = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
@@ -634,14 +688,19 @@ function renderSummaryCards(data) {
   const highStress     = data.filter(r => r.stress_level === 'High').length;
   const highStressPct  = data.length ? Math.round((highStress / data.length) * 100) : 0;
 
-  const avgStudy       = mean(data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v)));
+  // Always reflect the full dataset, not a sliced render batch
+  document.getElementById('cardMeanScore').textContent = avgCGPA;
+  document.getElementById('cardTopScorer').textContent = data.length.toLocaleString(); // 150,000
+  document.getElementById('cardPassRate').textContent  = `${highBurnoutPct}%`;
+  document.getElementById('cardAvgHours').textContent  = `${highStressPct}%`;
 
-  document.getElementById('cardMeanScore').textContent = avgCGPA;          // "Total Students" tile → Avg CGPA
-  document.getElementById('cardTopScorer').textContent = `${data.length.toLocaleString()}`; // "Total Columns" tile → Total records
-  document.getElementById('cardPassRate').textContent  = `${highBurnoutPct}%`;              // "Burnout: High" tile
-  document.getElementById('cardAvgHours').textContent  = `${highStressPct}%`;              // "Stress: High" tile
+  // Fix the subtitles to match the CSV
+  document.querySelector('#cardMeanScore').closest('.stat-tile').querySelector('.st-sub').textContent = 'avg CGPA';
+  document.querySelector('#cardTopScorer').closest('.stat-tile').querySelector('.st-label').textContent = 'Total Students';
+  document.querySelector('#cardTopScorer').closest('.stat-tile').querySelector('.st-sub').textContent = 'in the dataset';
+  document.querySelector('#cardPassRate').closest('.stat-tile').querySelector('.st-sub').textContent = `${highBurnout.toLocaleString()} students`;
+  document.querySelector('#cardAvgHours').closest('.stat-tile').querySelector('.st-sub').textContent = `${highStress.toLocaleString()} students`;
 }
-document.addEventListener('DOMContentLoaded',()=>{loadDataset()});
 
 /* ZONE 2: STUDENT 2 — ALL CHARTS */
 const TH = {
@@ -679,6 +738,7 @@ function barSidebarOpts(yMin,yMax){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  loadDataset();
 
   // 1. GENDER
   new Chart(mk('c_gender'),{type:'bar',data:{labels:['Other','Female','Male'],datasets:[{data:[50048,49988,49964],backgroundColor:['#b5820d','#d94f3d','#3a6ea8'],borderWidth:0,borderRadius:6,borderSkipped:false}]},options:barSidebarOpts(49800,50200)});
