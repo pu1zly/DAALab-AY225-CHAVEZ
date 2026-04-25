@@ -510,28 +510,6 @@
 <script>
 "use strict";
 
-const RAW_DATA = [
-  { name:"Ana Reyes",       studyHours:18, attendance:95, midterm:87, score:91, assignments:10, sleep:7, job:false, grade:"A" },
-  { name:"Ben Santos",      studyHours:10, attendance:78, midterm:65, score:68, assignments:7,  sleep:6, job:true,  grade:"C" },
-  { name:"Clara Tan",       studyHours:22, attendance:98, midterm:94, score:97, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Diego Flores",    studyHours:8,  attendance:60, midterm:52, score:55, assignments:5,  sleep:5, job:true,  grade:"D" },
-  { name:"Elena Cruz",      studyHours:15, attendance:88, midterm:78, score:82, assignments:9,  sleep:7, job:false, grade:"B" },
-  { name:"Felix Lim",       studyHours:12, attendance:82, midterm:72, score:75, assignments:8,  sleep:6, job:true,  grade:"C" },
-  { name:"Grace Mendoza",   studyHours:20, attendance:96, midterm:90, score:93, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Henry Ong",       studyHours:6,  attendance:55, midterm:45, score:50, assignments:4,  sleep:5, job:true,  grade:"D" },
-  { name:"Iris Villanueva", studyHours:17, attendance:91, midterm:83, score:86, assignments:9,  sleep:7, job:false, grade:"B" },
-  { name:"Jay Aquino",      studyHours:14, attendance:85, midterm:76, score:79, assignments:8,  sleep:7, job:false, grade:"B" },
-  { name:"Karen Delos",     studyHours:9,  attendance:70, midterm:60, score:63, assignments:6,  sleep:6, job:true,  grade:"C" },
-  { name:"Luis Ramos",      studyHours:21, attendance:97, midterm:92, score:95, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Maria Dela Cruz", studyHours:16, attendance:89, midterm:80, score:84, assignments:9,  sleep:7, job:true,  grade:"B" },
-  { name:"Noel Bautista",   studyHours:11, attendance:75, midterm:68, score:71, assignments:7,  sleep:6, job:false, grade:"C" },
-  { name:"Olivia Pascual",  studyHours:19, attendance:94, midterm:88, score:90, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Paulo Jimenez",   studyHours:7,  attendance:62, midterm:50, score:53, assignments:5,  sleep:5, job:true,  grade:"D" },
-  { name:"Quinn Serrano",   studyHours:13, attendance:80, midterm:73, score:76, assignments:8,  sleep:7, job:false, grade:"C" },
-  { name:"Rosa Aguilar",    studyHours:23, attendance:99, midterm:96, score:98, assignments:10, sleep:9, job:false, grade:"A" },
-  { name:"Sam Torres",      studyHours:10, attendance:74, midterm:66, score:69, assignments:7,  sleep:6, job:true,  grade:"C" },
-  { name:"Tina Guerrero",   studyHours:15, attendance:87, midterm:79, score:81, assignments:9,  sleep:7, job:false, grade:"B" },
-];
 window.DS = [];
 window.CHARTS = {};
 
@@ -540,7 +518,24 @@ function mean(arr) { if(!arr||arr.length===0)return 0; return Math.round((arr.re
 function median(arr) { if(!arr||arr.length===0)return 0; const s=[...arr].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2===0?Math.round(((s[m-1]+s[m])/2)*100)/100:s[m]; }
 
 /* ZONE 1: STUDENT 1 STUBS */
-function loadDataset(){console.warn("⚠ Student 1: loadDataset() not implemented.")}
+function loadDataset() {
+  fetch('student_mental_health_burnout.csv')
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',');
+      window.DS = lines.slice(1).map((line, i) => {
+        const vals = line.split(',');
+        const row = {};
+        headers.forEach((h, j) => row[h.trim()] = vals[j]?.trim());
+        return row;
+      });
+      renderTable(window.DS.slice(0, 100)); // show first 100 rows for performance
+      renderSummaryCards(window.DS);
+      onDataReady();
+    })
+    .catch(err => console.error('Failed to load CSV:', err));
+}
 function renderTable(data){console.warn("⚠ Student 1: renderTable() not implemented.")}
 function applyFilterSort(){console.warn("⚠ Student 1: applyFilterSort() not implemented.")}
 function resetTable(){console.warn("⚠ Student 1: resetTable() not implemented.")}
