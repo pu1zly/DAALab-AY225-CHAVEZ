@@ -536,7 +536,54 @@ function loadDataset() {
     })
     .catch(err => console.error('Failed to load CSV:', err));
 }
-function renderTable(data){console.warn("⚠ Student 1: renderTable() not implemented.")}
+function renderTable(data) {
+  const thead = document.querySelector('#dataTable thead tr');
+  const tbody = document.getElementById('tableBody');
+  const rowCount = document.getElementById('rowCount');
+
+  rowCount.textContent = `${data.length} row${data.length !== 1 ? 's' : ''} shown`;
+
+  thead.innerHTML = `
+    <th>#</th>
+    <th>Student ID</th>
+    <th>Age</th>
+    <th>Gender</th>
+    <th>Course</th>
+    <th>Year</th>
+    <th>Study Hrs/Day</th>
+    <th>Sleep Hrs</th>
+    <th>Stress Level</th>
+    <th>Attendance %</th>
+    <th>CGPA</th>
+    <th>Burnout</th>
+  `;
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text-dim)">No matching records found.</td></tr>`;
+    return;
+  }
+
+  const burnoutClass = { High: 'gD', Medium: 'gC', Low: 'gA' };
+  const stressClass  = { High: 'gD', Medium: 'gC', Low: 'gA' };
+
+  tbody.innerHTML = data.map((row, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${row.student_id}</td>
+      <td class="num">${row.age}</td>
+      <td>${row.gender}</td>
+      <td>${row.course}</td>
+      <td>${row.year}</td>
+      <td class="num">${row.daily_study_hours}</td>
+      <td class="num">${row.daily_sleep_hours}</td>
+      <td class="${stressClass[row.stress_level] || ''}">${row.stress_level}</td>
+      <td class="num">${row.attendance_percentage}</td>
+      <td class="num">${row.cgpa}</td>
+      <td class="${burnoutClass[row.burnout_level] || ''}">${row.burnout_level}</td>
+    </tr>
+  `).join('');
+}
+
 function applyFilterSort(){console.warn("⚠ Student 1: applyFilterSort() not implemented.")}
 function resetTable(){console.warn("⚠ Student 1: resetTable() not implemented.")}
 function renderSummaryCards(data){console.warn("⚠ Student 1: renderSummaryCards() not implemented.")}
