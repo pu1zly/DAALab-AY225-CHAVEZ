@@ -624,7 +624,23 @@ function resetTable() {
   renderTable(window.DS.slice(0, 100));
   document.getElementById('rowCount').textContent = `${window.DS.length.toLocaleString()} total (showing 100)`;
 }
-function renderSummaryCards(data){console.warn("⚠ Student 1: renderSummaryCards() not implemented.")}
+function renderSummaryCards(data) {
+  const cgpaVals       = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const avgCGPA        = mean(cgpaVals);
+
+  const highBurnout    = data.filter(r => r.burnout_level === 'High').length;
+  const highBurnoutPct = data.length ? Math.round((highBurnout / data.length) * 100) : 0;
+
+  const highStress     = data.filter(r => r.stress_level === 'High').length;
+  const highStressPct  = data.length ? Math.round((highStress / data.length) * 100) : 0;
+
+  const avgStudy       = mean(data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v)));
+
+  document.getElementById('cardMeanScore').textContent = avgCGPA;          // "Total Students" tile → Avg CGPA
+  document.getElementById('cardTopScorer').textContent = `${data.length.toLocaleString()}`; // "Total Columns" tile → Total records
+  document.getElementById('cardPassRate').textContent  = `${highBurnoutPct}%`;              // "Burnout: High" tile
+  document.getElementById('cardAvgHours').textContent  = `${highStressPct}%`;              // "Stress: High" tile
+}
 document.addEventListener('DOMContentLoaded',()=>{loadDataset()});
 
 /* ZONE 2: STUDENT 2 — ALL CHARTS */
