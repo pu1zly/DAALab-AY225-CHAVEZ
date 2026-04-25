@@ -583,8 +583,41 @@ function renderTable(data) {
     </tr>
   `).join('');
 }
+function applyFilterSort() {
+  const query   = document.getElementById('filterInput').value.trim().toLowerCase();
+  const sortKey = document.getElementById('sortSelect').value;
 
-function applyFilterSort(){console.warn("⚠ Student 1: applyFilterSort() not implemented.")}
+  // update placeholder hint
+  document.getElementById('filterInput').placeholder = 'Filter by student ID, course, gender…';
+
+  let data = window.DS.filter(row => {
+    if (!query) return true;
+    return (
+      row.student_id?.toLowerCase().includes(query) ||
+      row.course?.toLowerCase().includes(query) ||
+      row.gender?.toLowerCase().includes(query) ||
+      row.year?.toLowerCase().includes(query) ||
+      row.burnout_level?.toLowerCase().includes(query) ||
+      row.stress_level?.toLowerCase().includes(query)
+    );
+  });
+
+  if (sortKey === 'name') {
+    data = [...data].sort((a, b) => a.student_id - b.student_id);
+  } else if (sortKey === 'studyHours') {
+    data = [...data].sort((a, b) => b.daily_study_hours - a.daily_study_hours);
+  } else if (sortKey === 'score') {
+    data = [...data].sort((a, b) => b.cgpa - a.cgpa);
+  } else if (sortKey === 'attendance') {
+    data = [...data].sort((a, b) => b.attendance_percentage - a.attendance_percentage);
+  } else if (sortKey === 'grade') {
+    const order = { Low: 1, Medium: 2, High: 3 };
+    data = [...data].sort((a, b) => (order[a.burnout_level] || 9) - (order[b.burnout_level] || 9));
+  }
+
+  renderTable(data.slice(0, 100));
+  document.getElementById('rowCount').textContent = `${data.length.toLocaleString()} match${data.length !== 1 ? 'es' : ''} (showing ${Math.min(data.length, 100)})`;
+}
 function resetTable(){console.warn("⚠ Student 1: resetTable() not implemented.")}
 function renderSummaryCards(data){console.warn("⚠ Student 1: renderSummaryCards() not implemented.")}
 document.addEventListener('DOMContentLoaded',()=>{loadDataset()});
