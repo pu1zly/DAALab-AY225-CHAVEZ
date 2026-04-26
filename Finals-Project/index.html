@@ -168,7 +168,7 @@
 
     /* ── MAIN LAYOUT ── */
     main {
-      max-width: 1260px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 48px 36px;
       display: flex;
@@ -273,7 +273,7 @@
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input[type="text"] { width: 220px; }
+    input[type="text"] { width: 320px; }
     input[type="text"]:focus, select:focus {
       border-color: var(--coral);
       box-shadow: 0 0 0 3px rgba(217,79,61,0.12);
@@ -590,11 +590,27 @@
         <input type="text" id="filterInput" placeholder="Filter by student name…" />
         <select id="sortSelect">
           <option value="">Sort by…</option>
-          <option value="name">Name (A–Z)</option>
-          <option value="studyHours">Study Hours ↓</option>
-          <option value="score">Final Score ↓</option>
-          <option value="attendance">Attendance % ↓</option>
-          <option value="grade">Grade (A first)</option>
+          <option value="student_id">Student ID ↑</option>
+          <option value="age_asc">Age ↑</option>
+          <option value="age_desc">Age ↓</option>
+          <option value="daily_study_hours_desc">Study Hrs ↓</option>
+          <option value="daily_study_hours_asc">Study Hrs ↑</option>
+          <option value="daily_sleep_hours_desc">Sleep Hrs ↓</option>
+          <option value="screen_time_hours_desc">Screen Time ↓</option>
+          <option value="stress_level">Stress (High first)</option>
+          <option value="anxiety_score_desc">Anxiety ↓</option>
+          <option value="depression_score_desc">Depression ↓</option>
+          <option value="academic_pressure_desc">Academic Pressure ↓</option>
+          <option value="financial_stress_desc">Financial Stress ↓</option>
+          <option value="social_support_desc">Social Support ↓</option>
+          <option value="physical_activity_desc">Physical Activity ↓</option>
+          <option value="sleep_quality">Sleep Quality (Good first)</option>
+          <option value="attendance_desc">Attendance % ↓</option>
+          <option value="attendance_asc">Attendance % ↑</option>
+          <option value="cgpa_desc">CGPA ↓</option>
+          <option value="cgpa_asc">CGPA ↑</option>
+          <option value="internet_quality">Internet Quality (Good first)</option>
+          <option value="burnout_level">Burnout (High first)</option>
         </select>
         <button class="primary" onclick="applyFilterSort()">Apply</button>
         <button onclick="resetTable()">Reset</button>
@@ -604,9 +620,11 @@
         <table id="dataTable">
           <thead>
             <tr>
-              <th>#</th><th>Student Name</th><th>Study Hrs/Wk</th><th>Attendance %</th>
-              <th>Midterm</th><th>Final Score</th><th>Assignments</th>
-              <th>Sleep Hrs</th><th>Part-time Job</th><th>Grade</th>
+            <th>#</th><th>Student ID</th><th>Age</th><th>Gender</th><th>Course</th>
+            <th>Year</th><th>Study Hrs/Day</th><th>Sleep Hrs</th><th>Screen Time</th>
+            <th>Stress</th><th>Anxiety</th><th>Depression</th><th>Academic Pressure</th>
+            <th>Financial Stress</th><th>Social Support</th><th>Physical Activity</th>
+            <th>Sleep Quality</th><th>Attendance %</th><th>CGPA</th><th>Internet Quality</th><th>Burnout</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -980,30 +998,6 @@
 
 <script>
 "use strict";
-
-/* ── ZONE 0: SHARED DATA & INTEGRATION ── */
-const RAW_DATA = [
-  { name:"Ana Reyes",       studyHours:18, attendance:95, midterm:87, score:91, assignments:10, sleep:7, job:false, grade:"A" },
-  { name:"Ben Santos",      studyHours:10, attendance:78, midterm:65, score:68, assignments:7,  sleep:6, job:true,  grade:"C" },
-  { name:"Clara Tan",       studyHours:22, attendance:98, midterm:94, score:97, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Diego Flores",    studyHours:8,  attendance:60, midterm:52, score:55, assignments:5,  sleep:5, job:true,  grade:"D" },
-  { name:"Elena Cruz",      studyHours:15, attendance:88, midterm:78, score:82, assignments:9,  sleep:7, job:false, grade:"B" },
-  { name:"Felix Lim",       studyHours:12, attendance:82, midterm:72, score:75, assignments:8,  sleep:6, job:true,  grade:"C" },
-  { name:"Grace Mendoza",   studyHours:20, attendance:96, midterm:90, score:93, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Henry Ong",       studyHours:6,  attendance:55, midterm:45, score:50, assignments:4,  sleep:5, job:true,  grade:"D" },
-  { name:"Iris Villanueva", studyHours:17, attendance:91, midterm:83, score:86, assignments:9,  sleep:7, job:false, grade:"B" },
-  { name:"Jay Aquino",      studyHours:14, attendance:85, midterm:76, score:79, assignments:8,  sleep:7, job:false, grade:"B" },
-  { name:"Karen Delos",     studyHours:9,  attendance:70, midterm:60, score:63, assignments:6,  sleep:6, job:true,  grade:"C" },
-  { name:"Luis Ramos",      studyHours:21, attendance:97, midterm:92, score:95, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Maria Dela Cruz", studyHours:16, attendance:89, midterm:80, score:84, assignments:9,  sleep:7, job:true,  grade:"B" },
-  { name:"Noel Bautista",   studyHours:11, attendance:75, midterm:68, score:71, assignments:7,  sleep:6, job:false, grade:"C" },
-  { name:"Olivia Pascual",  studyHours:19, attendance:94, midterm:88, score:90, assignments:10, sleep:8, job:false, grade:"A" },
-  { name:"Paulo Jimenez",   studyHours:7,  attendance:62, midterm:50, score:53, assignments:5,  sleep:5, job:true,  grade:"D" },
-  { name:"Quinn Serrano",   studyHours:13, attendance:80, midterm:73, score:76, assignments:8,  sleep:7, job:false, grade:"C" },
-  { name:"Rosa Aguilar",    studyHours:23, attendance:99, midterm:96, score:98, assignments:10, sleep:9, job:false, grade:"A" },
-  { name:"Sam Torres",      studyHours:10, attendance:74, midterm:66, score:69, assignments:7,  sleep:6, job:true,  grade:"C" },
-  { name:"Tina Guerrero",   studyHours:15, attendance:87, midterm:79, score:81, assignments:9,  sleep:7, job:false, grade:"B" },
-];
 window.DS = [];
 window.CHARTS = {};
 
@@ -1024,118 +1018,133 @@ function median(arr) {
    Branch: feature/data-engine
 ══════════════════════════════════════════════ */
 
-/**
- * loadDataset()
- * Copies RAW_DATA into window.DS and kicks off the table + summary cards.
- * Commit 1 on feature/data-engine.
- */
 function loadDataset() {
-  window.DS = RAW_DATA.slice(); // shallow copy — never mutate RAW_DATA
-  renderTable(window.DS);
-  renderSummaryCards(window.DS);
-  onDataReady();
+  fetch('student_mental_health_burnout.csv')
+    .then(res => { if (!res.ok) throw new Error('CSV not found: ' + res.status); return res.text(); })
+    .then(text => {
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      window.DS = lines.slice(1).map(line => {
+        const vals = line.split(',');
+        const row = {};
+        headers.forEach((h, j) => { row[h] = vals[j]?.trim() ?? ''; });
+        return row;
+      });
+      console.log('✅ CSV loaded:', window.DS.length, 'rows | first row:', window.DS[0]);
+      renderSummaryCards(window.DS);
+      renderTable(window.DS.slice(0, 20));
+      onDataReady();
+    })
+    .catch(err => {
+      console.error('❌ loadDataset() failed:', err);
+      document.getElementById('tableBody').innerHTML =
+        `<tr><td colspan="21" style="text-align:center;padding:40px;color:var(--coral)">
+          ❌ Could not load CSV: ${err.message}<br>
+          <small>Make sure student_mental_health_burnout.csv is in the same folder as index.html</small>
+        </td></tr>`;
+    });
 }
 
-/**
- * renderTable(data)
- * Builds the <tbody> rows dynamically from data array.
- * Commit 2 on feature/data-engine.
- */
 function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
-  const count = document.getElementById('rowCount');
-
+  const tbody    = document.getElementById('tableBody');
+  const rowCount = document.getElementById('rowCount');
+  const total    = window.DS ? window.DS.length : data.length;
+  rowCount.textContent = `${total.toLocaleString()} total (showing ${data.length})`;
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-dim);">No records match your filter.</td></tr>`;
-    count.textContent = '0 rows';
+    tbody.innerHTML = `<tr><td colspan="21" style="text-align:center;padding:40px;color:var(--text-dim)">No matching records found.</td></tr>`;
     return;
   }
-
-  const gradeClass = { A:'gA', B:'gB', C:'gC', D:'gD' };
-
-  const rows = data.map((row, i) => `
+  const hi = { High:'gD', Medium:'gC', Low:'gA' };
+  const qi = { Good:'gA', Average:'gC', Poor:'gD' };
+  tbody.innerHTML = data.map((r, i) => `
     <tr>
-      <td class="num">${i + 1}</td>
-      <td>${row.name}</td>
-      <td class="num">${row.studyHours}</td>
-      <td class="num">${row.attendance}%</td>
-      <td class="num">${row.midterm}</td>
-      <td class="num">${row.score}</td>
-      <td class="num">${row.assignments}/10</td>
-      <td class="num">${row.sleep}h</td>
-      <td style="color:${row.job ? 'var(--coral)' : 'var(--sage)'};">${row.job ? '✓ Yes' : '✗ No'}</td>
-      <td class="${gradeClass[row.grade] || ''}">${row.grade}</td>
-    </tr>
-  `).join('');
-
-  tbody.innerHTML = rows;
-  count.textContent = `${data.length} row${data.length !== 1 ? 's' : ''}`;
+      <td>${i+1}</td>
+      <td>${r.student_id}</td>
+      <td class="num">${r.age}</td>
+      <td>${r.gender}</td>
+      <td>${r.course}</td>
+      <td>${r.year}</td>
+      <td class="num">${r.daily_study_hours}</td>
+      <td class="num">${r.daily_sleep_hours}</td>
+      <td class="num">${r.screen_time_hours}</td>
+      <td class="${hi[r.stress_level]||''}">${r.stress_level}</td>
+      <td class="num">${r.anxiety_score}</td>
+      <td class="num">${r.depression_score}</td>
+      <td class="num">${r.academic_pressure_score}</td>
+      <td class="num">${r.financial_stress_score}</td>
+      <td class="num">${r.social_support_score}</td>
+      <td class="num">${r.physical_activity_hours}</td>
+      <td class="${qi[r.sleep_quality]||''}">${r.sleep_quality}</td>
+      <td class="num">${r.attendance_percentage}</td>
+      <td class="num">${r.cgpa}</td>
+      <td class="${qi[r.internet_quality]||''}">${r.internet_quality}</td>
+      <td class="${hi[r.burnout_level]||''}">${r.burnout_level}</td>
+    </tr>`).join('');
 }
 
-/**
- * applyFilterSort()
- * Reads the filter input and sort select, then re-renders the filtered/sorted subset.
- * Commit 3 on feature/data-engine.
- */
 function applyFilterSort() {
-  const filterVal = document.getElementById('filterInput').value.trim().toLowerCase();
-  const sortKey   = document.getElementById('sortSelect').value;
-
-  // 1. Filter
-  let filtered = window.DS.filter(row =>
-    !filterVal || row.name.toLowerCase().includes(filterVal)
-  );
-
-  // 2. Sort
-  const gradeOrder = { A:1, B:2, C:3, D:4 };
-  if (sortKey === 'name') {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (sortKey === 'studyHours') {
-    filtered.sort((a, b) => b.studyHours - a.studyHours);
-  } else if (sortKey === 'score') {
-    filtered.sort((a, b) => b.score - a.score);
-  } else if (sortKey === 'attendance') {
-    filtered.sort((a, b) => b.attendance - a.attendance);
-  } else if (sortKey === 'grade') {
-    filtered.sort((a, b) => (gradeOrder[a.grade] || 5) - (gradeOrder[b.grade] || 5));
-  }
-
-  renderTable(filtered);
+  const query   = document.getElementById('filterInput').value.trim().toLowerCase();
+  const sortKey = document.getElementById('sortSelect').value;
+  let data = window.DS.filter(r => !query || [
+    r.student_id, r.course, r.gender, r.year,
+    r.burnout_level, r.stress_level, r.sleep_quality, r.internet_quality
+  ].some(v => v?.toLowerCase().includes(query)));
+  const lv = { High:3, Medium:2, Low:1 };
+  const qv = { Good:3, Average:2, Poor:1 };
+  const sorters = {
+    student_id:             (a,b) => a.student_id - b.student_id,
+    age_asc:                (a,b) => a.age - b.age,
+    age_desc:               (a,b) => b.age - a.age,
+    daily_study_hours_desc: (a,b) => b.daily_study_hours - a.daily_study_hours,
+    daily_study_hours_asc:  (a,b) => a.daily_study_hours - b.daily_study_hours,
+    daily_sleep_hours_desc: (a,b) => b.daily_sleep_hours - a.daily_sleep_hours,
+    screen_time_hours_desc: (a,b) => b.screen_time_hours - a.screen_time_hours,
+    stress_level:           (a,b) => (lv[b.stress_level]||0) - (lv[a.stress_level]||0),
+    anxiety_score_desc:     (a,b) => b.anxiety_score - a.anxiety_score,
+    depression_score_desc:  (a,b) => b.depression_score - a.depression_score,
+    academic_pressure_desc: (a,b) => b.academic_pressure_score - a.academic_pressure_score,
+    financial_stress_desc:  (a,b) => b.financial_stress_score - a.financial_stress_score,
+    social_support_desc:    (a,b) => b.social_support_score - a.social_support_score,
+    physical_activity_desc: (a,b) => b.physical_activity_hours - a.physical_activity_hours,
+    attendance_desc:        (a,b) => b.attendance_percentage - a.attendance_percentage,
+    attendance_asc:         (a,b) => a.attendance_percentage - b.attendance_percentage,
+    cgpa_desc:              (a,b) => b.cgpa - a.cgpa,
+    cgpa_asc:               (a,b) => a.cgpa - b.cgpa,
+    burnout_level:          (a,b) => (lv[b.burnout_level]||0) - (lv[a.burnout_level]||0),
+    sleep_quality:          (a,b) => (qv[b.sleep_quality]||0) - (qv[a.sleep_quality]||0),
+    internet_quality:       (a,b) => (qv[b.internet_quality]||0) - (qv[a.internet_quality]||0),
+  };
+  if (sortKey && sorters[sortKey]) data = [...data].sort(sorters[sortKey]);
+  renderTable(data.slice(0, 20));
+  document.getElementById('rowCount').textContent = `${data.length.toLocaleString()} match${data.length !== 1 ? 'es' : ''} (showing ${Math.min(data.length, 20)})`;
 }
 
-/**
- * resetTable()
- * Clears the filter/sort controls and restores the original full dataset view.
- * Commit 4 on feature/data-engine.
- */
 function resetTable() {
   document.getElementById('filterInput').value = '';
   document.getElementById('sortSelect').value  = '';
-  renderTable(window.DS);
+  renderTable(window.DS.slice(0, 20));
+  document.getElementById('rowCount').textContent = `${window.DS.length.toLocaleString()} total (showing 20)`;
 }
 
-/**
- * renderSummaryCards(data)
- * Computes 4 key stats from data and injects them into the stat-strip tiles.
- * Commit 5 on feature/data-engine.
- */
 function renderSummaryCards(data) {
-  if (!data || data.length === 0) return;
+  const highBurnout = data.filter(r => r.burnout_level === 'High').length;
+  const highStress  = data.filter(r => r.stress_level  === 'High').length;
+  const cgpaVals    = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const avgCGPA     = mean(cgpaVals);
+  const cgpaMax     = cgpaVals.reduce((m, v) => v > m ? v : m, cgpaVals[0]);
+  const passCount   = data.filter(r => parseFloat(r.cgpa) >= 6).length;
+  const passRate    = Math.round(passCount / data.length * 100);
 
-  const scores    = data.map(r => r.score);
-  const avgScore  = mean(scores);
-  const topRow    = data.reduce((best, r) => r.score > best.score ? r : best, data[0]);
-  const passCount = data.filter(r => r.score >= 60).length;
-  const passPct   = Math.round((passCount / data.length) * 100);
+  function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-  document.getElementById('cardTotal').textContent      = data.length.toLocaleString();
-  document.getElementById('cardMeanScore').textContent  = avgScore.toFixed(1);
-  document.getElementById('cardTopScorer').textContent  = topRow.score;
-  document.getElementById('cardTopScorerSub').textContent = topRow.name;
-  document.getElementById('cardPassRate').textContent   = `${passPct}%`;
-  document.getElementById('cardPassSub').textContent    = `${passCount} of ${data.length} students`;
+  set('cardTotal',       data.length.toLocaleString());
+  set('cardTotalSub',    'in the dataset');
+  set('cardMeanScore',   avgCGPA.toFixed(2));
+  set('cardTopScorer',   cgpaMax.toFixed(2));
+  set('cardTopScorerSub','highest CGPA');
+  set('cardPassRate',    passRate + '%');
+  set('cardPassSub',     `${passCount.toLocaleString()} students (CGPA ≥ 6)`);
 }
-
 /* Fired after DS is populated */
 function onDataReady() {
   console.log("✅ onDataReady() — window.DS:", window.DS.length, "records");
