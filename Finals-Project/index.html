@@ -1269,48 +1269,51 @@ function variance(arr) {
   const sumSq = arr.reduce((acc, x) => acc + Math.pow(x - μ, 2), 0);
   return Math.round((sumSq / arr.length) * 10000) / 10000;
 }
-
 // ✅ COMMIT 2 — stdDev()
 function stdDev(arr) {
   return Math.round(Math.sqrt(variance(arr)) * 10000) / 10000;
 }
-
 // ✅ COMMIT 3 — pearsonCorr()
 function pearsonCorr(x, y) {
   if (!x || !y || x.length !== y.length || x.length === 0) return 0;
   const mx = mean(x), my = mean(y);
-  const num    = x.reduce((acc, xi, i) => acc + (xi - mx) * (y[i] - my), 0);
-  const denomX = x.reduce((acc, xi)    => acc + Math.pow(xi - mx, 2), 0);
-  const denomY = y.reduce((acc, yi)    => acc + Math.pow(yi - my, 2), 0);
+  const num    = x.reduce((acc, xi, i) => acc + (xi-mx)*(y[i]-my), 0);
+  const denomX = x.reduce((acc, xi)    => acc + Math.pow(xi-mx, 2), 0);
+  const denomY = y.reduce((acc, yi)    => acc + Math.pow(yi-my, 2), 0);
   if (denomX === 0 || denomY === 0) return 0;
-  return Math.round((num / Math.sqrt(denomX * denomY)) * 10000) / 10000;
+  return Math.round((num / Math.sqrt(denomX*denomY)) * 10000) / 10000;
 }
 function interpR(r) {
   const a=Math.abs(r), s=a>=0.7?'Strong':a>=0.4?'Moderate':a>=0.1?'Weak':'Negligible';
   return s+' '+(r>0.001?'Positive':r<-0.001?'Negative':'None');
 }
-
 // ✅ COMMIT 4 — linearRegression()
-// ŷ = slope·x + intercept  |  Real: slope=-0.0036, intercept=7.0174, r²=0.0000
 function linearRegression(x, y) {
   if (!x || !y || x.length === 0) return { slope:0, intercept:0, rSquared:0 };
-  const mx = mean(x), my = mean(y);
-  const num   = x.reduce((acc, xi, i) => acc + (xi-mx)*(y[i]-my), 0);
-  const denom = x.reduce((acc, xi)    => acc + Math.pow(xi-mx, 2), 0);
+  const mx=mean(x), my=mean(y);
+  const num   = x.reduce((acc,xi,i) => acc+(xi-mx)*(y[i]-my), 0);
+  const denom = x.reduce((acc,xi)   => acc+Math.pow(xi-mx,2), 0);
   const slope     = denom!==0 ? Math.round((num/denom)*10000)/10000 : 0;
-  const intercept = Math.round((my - slope*mx)*10000)/10000;
-  const r         = pearsonCorr(x, y);
+  const intercept = Math.round((my-slope*mx)*10000)/10000;
+  const r         = pearsonCorr(x,y);
   const rSquared  = Math.round(Math.pow(r,2)*10000)/10000;
   return { slope, intercept, rSquared };
 }
 
+// ✅ COMMIT 5 — renderAnalysis() — all DOM fields now populated
 function renderAnalysis(data) {
   if (!data || data.length === 0) return;
   const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
   const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
   const attend = data.map(r => parseFloat(r.attendance_percentage)).filter(v => !isNaN(v));
-  document.getElementById('aVariance').textContent  = variance(cgpa).toFixed(4);
-  document.getElementById('aStdDev').textContent    = stdDev(cgpa).toFixed(4);
+  // Descriptive ✅
+  document.getElementById('an').textContent        = data.length.toLocaleString();
+  document.getElementById('aMin').textContent      = Math.min(...cgpa).toFixed(2)+' (CGPA)';
+  document.getElementById('aMax').textContent      = Math.max(...cgpa).toFixed(2)+' (CGPA)';
+  document.getElementById('aRange').textContent    = (Math.max(...cgpa)-Math.min(...cgpa)).toFixed(2);
+  document.getElementById('aVariance').textContent = variance(cgpa).toFixed(4);
+  document.getElementById('aStdDev').textContent   = stdDev(cgpa).toFixed(4);
+  // Correlation ✅
   const r1=pearsonCorr(study,cgpa), r2=pearsonCorr(attend,cgpa);
   document.getElementById('rPearson').textContent   = r1.toFixed(4);
   document.getElementById('rInterp').textContent    = interpR(r1);
@@ -1318,18 +1321,19 @@ function renderAnalysis(data) {
   document.getElementById('rInterp2').textContent   = interpR(r2);
   document.getElementById('rStronger').textContent  = Math.abs(r1)>=Math.abs(r2)?'Study Hours':'Attendance %';
   document.getElementById('rDirection').textContent = (r1<0&&r2<0)?'Both Negative':(r1>0&&r2>0)?'Both Positive':'Mixed';
+  // Regression ✅
   const reg=linearRegression(study,cgpa);
   const fit=reg.rSquared>=0.9?'Excellent fit':reg.rSquared>=0.7?'Good fit':reg.rSquared>=0.3?'Moderate fit':'Negligible fit';
-  document.getElementById('regEquation').textContent  = 'CGPA = '+reg.slope+'·hrs + '+reg.intercept; // ✅
-  document.getElementById('regSlope').textContent     = reg.slope;                                    // ✅
-  document.getElementById('regIntercept').textContent = reg.intercept;                                // ✅
-  document.getElementById('regR2').textContent        = reg.rSquared.toFixed(4);                      // ✅
-  document.getElementById('regInterp').textContent    = fit;                                          // ✅
-  document.getElementById('regPredict').textContent   = (reg.slope*15+reg.intercept).toFixed(2)+' (at 15 hrs)'; // ✅
+  document.getElementById('regEquation').textContent  = 'CGPA = '+reg.slope+'·hrs + '+reg.intercept;
+  document.getElementById('regSlope').textContent     = reg.slope;
+  document.getElementById('regIntercept').textContent = reg.intercept;
+  document.getElementById('regR2').textContent        = reg.rSquared.toFixed(4);
+  document.getElementById('regInterp').textContent    = fit;
+  document.getElementById('regPredict').textContent   = (reg.slope*15+reg.intercept).toFixed(2)+' (at 15 hrs)';
 }
 function renderInsights(data) { console.warn("⚠ Student 2: renderInsights() not implemented yet."); }
-const _o4 = onDataReady;
-function onDataReady() { _o4(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
+const _o5 = onDataReady;
+function onDataReady() { _o5(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
 </script>
 </body>
 </html>
