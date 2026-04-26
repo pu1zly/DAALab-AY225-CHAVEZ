@@ -1018,6 +1018,7 @@ function median(arr) {
    Branch: feature/data-engine
 ══════════════════════════════════════════════ */
 
+//COMMIT 1: Implement loadDataset() — populate window.DS✅
 function loadDataset() {
   fetch('student_mental_health_burnout.csv')
     .then(res => { if (!res.ok) throw new Error('CSV not found: ' + res.status); return res.text(); })
@@ -1045,6 +1046,7 @@ function loadDataset() {
     });
 }
 
+//COMMIT 2: Implement renderTable(data) — dynamic HTML table✅
 function renderTable(data) {
   const tbody    = document.getElementById('tableBody');
   const rowCount = document.getElementById('rowCount');
@@ -1082,6 +1084,7 @@ function renderTable(data) {
     </tr>`).join('');
 }
 
+//COMMIT 3: Implement applyFilterSort() — filter by name, sort by column✅
 function applyFilterSort() {
   const query   = document.getElementById('filterInput').value.trim().toLowerCase();
   const sortKey = document.getElementById('sortSelect').value;
@@ -1118,7 +1121,7 @@ function applyFilterSort() {
   renderTable(data.slice(0, 20));
   document.getElementById('rowCount').textContent = `${data.length.toLocaleString()} match${data.length !== 1 ? 'es' : ''} (showing ${Math.min(data.length, 20)})`;
 }
-
+ //COMMIT 4: Implement resetTable() — restore original view✅
 function resetTable() {
   document.getElementById('filterInput').value = '';
   document.getElementById('sortSelect').value  = '';
@@ -1126,6 +1129,7 @@ function resetTable() {
   document.getElementById('rowCount').textContent = `${window.DS.length.toLocaleString()} total (showing 20)`;
 }
 
+//COMMIT 5: Implement renderSummaryCards(data) — 4 stat cards✅
 function renderSummaryCards(data) {
   const highBurnout = data.filter(r => r.burnout_level === 'High').length;
   const highStress  = data.filter(r => r.stress_level  === 'High').length;
@@ -1148,7 +1152,10 @@ function renderSummaryCards(data) {
 /* Fired after DS is populated */
 function onDataReady() {
   console.log("✅ onDataReady() — window.DS:", window.DS.length, "records");
-  if (window.DS && window.DS.length > 0) renderAnalysis(window.DS);
+  if (window.DS && window.DS.length > 0) {
+    renderCharts(window.DS);
+    renderAnalysis(window.DS);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => { loadDataset(); });
@@ -1197,125 +1204,155 @@ const TH_DONUT = {
 
 function mk(id) { return document.getElementById(id).getContext('2d'); }
 
-document.addEventListener('DOMContentLoaded', () => {
+function renderCharts(data) {
 
+  // helpers
+  function count(field, val) { return data.filter(r => r[field] === val).length; }
+  function countRange(field, min, max) { return data.filter(r => { const v = parseFloat(r[field]); return v >= min && (max === null ? true : v < max); }).length; }
+  function avg(field) { const vals = data.map(r => parseFloat(r[field])).filter(v => !isNaN(v)); return vals.reduce((s,v) => s+v, 0) / vals.length; }
+  function countScore(field, score) { return data.filter(r => parseInt(r[field]) === score).length; }
+
+  // 1. GENDER
   new Chart(mk('c_gender'), {
     type: 'doughnut',
-    data: { labels: ['Other','Female','Male'], datasets: [{ data: [50048,49988,49964], backgroundColor: ['#b5820d','#d94f3d','#3a7d5c'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
+    data: { labels: ['Other','Female','Male'], datasets: [{ data: [count('gender','Other'), count('gender','Female'), count('gender','Male')], backgroundColor: ['#b5820d','#d94f3d','#3a7d5c'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
     options: { ...TH_DONUT }
   });
 
+  // 2. BURNOUT
   new Chart(mk('c_burnout'), {
     type: 'doughnut',
-    data: { labels: ['Low','Medium','High'], datasets: [{ data: [50265,49969,49766], backgroundColor: ['#3a7d5c','#b5820d','#d94f3d'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
+    data: { labels: ['Low','Medium','High'], datasets: [{ data: [count('burnout_level','Low'), count('burnout_level','Medium'), count('burnout_level','High')], backgroundColor: ['#3a7d5c','#b5820d','#d94f3d'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
     options: { ...TH_DONUT }
   });
 
+  // 3. COURSE
+  const courses = ['MBA','BBA','BCA','MCA','BSc','BTech'];
   new Chart(mk('c_course'), {
     type: 'bar',
-    data: { labels: ['MBA','BBA','BCA','MCA','BSc','BTech'], datasets: [{ label: 'Students', data: [25231,25103,24973,24950,24894,24849], backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#2a7a50','#3a7d5c','#1a2035'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, indexAxis: 'y', plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x, min: 24600, max: 25400 }, y: { ...TH.scales.y, grid: { color: 'transparent' }, ticks: { color: '#2e3348', font: { family: "'IBM Plex Mono'", size: 11, weight: '600' } } } } }
+    data: { labels: courses, datasets: [{ label: 'Students', data: courses.map(c => count('course', c)), backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#2a7a50','#3a7d5c','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, indexAxis: 'y', plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, grid: { color: 'transparent' }, ticks: { color: '#2e3348', font: { family: "'IBM Plex Mono'", size: 11, weight: '600' } } } } }
   });
 
+  // 4. STRESS
   new Chart(mk('c_stress'), {
     type: 'doughnut',
-    data: { labels: ['High','Medium','Low'], datasets: [{ data: [50295,50090,49615], backgroundColor: ['#d94f3d','#b5820d','#3a7d5c'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
+    data: { labels: ['High','Medium','Low'], datasets: [{ data: [count('stress_level','High'), count('stress_level','Medium'), count('stress_level','Low')], backgroundColor: ['#d94f3d','#b5820d','#3a7d5c'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
     options: { ...TH_DONUT }
   });
 
+  // 5. SLEEP QUALITY
   new Chart(mk('c_sleep_q'), {
     type: 'doughnut',
-    data: { labels: ['Good','Average','Poor'], datasets: [{ data: [50143,49976,49881], backgroundColor: ['#3a7d5c','#b5820d','#d94f3d'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
+    data: { labels: ['Good','Average','Poor'], datasets: [{ data: [count('sleep_quality','Good'), count('sleep_quality','Average'), count('sleep_quality','Poor')], backgroundColor: ['#3a7d5c','#b5820d','#d94f3d'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 10 }] },
     options: { ...TH_DONUT }
   });
 
+  // 6. BURNOUT BY YEAR
+  const years = ['1st','2nd','3rd','4th'];
   new Chart(mk('c_burnout_year'), {
     type: 'bar',
-    data: { labels: ['1st Year','2nd Year','3rd Year','4th Year'], datasets: [
-      { label: 'High',   data: [12511,12346,12419,12490], backgroundColor: '#d94f3d', borderRadius: 4 },
-      { label: 'Medium', data: [12617,12394,12496,12462], backgroundColor: '#b5820d', borderRadius: 4 },
-      { label: 'Low',    data: [12552,12536,12507,12670], backgroundColor: '#3a7d5c', borderRadius: 4 }
+    data: { labels: years.map(y => y+' Year'), datasets: [
+      { label: 'High',   data: years.map(y => data.filter(r => r.year === y && r.burnout_level === 'High').length),   backgroundColor: '#d94f3d', borderRadius: 4 },
+      { label: 'Medium', data: years.map(y => data.filter(r => r.year === y && r.burnout_level === 'Medium').length), backgroundColor: '#b5820d', borderRadius: 4 },
+      { label: 'Low',    data: years.map(y => data.filter(r => r.year === y && r.burnout_level === 'Low').length),    backgroundColor: '#3a7d5c', borderRadius: 4 }
     ]},
-    options: { ...TH, plugins: { ...TH.plugins, tooltip: { ...TH.plugins.tooltip, mode: 'index' } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, min: 12000, max: 13000 } } }
+    options: { ...TH, plugins: { ...TH.plugins, tooltip: { ...TH.plugins.tooltip, mode: 'index' } } }
   });
 
+  // 7. BURNOUT BY COURSE
   new Chart(mk('c_burnout_course'), {
     type: 'bar',
-    data: { labels: ['BTech','BCA','BSc','MBA','MCA','BBA'], datasets: [
-      { label: 'High',   data: [8331,8322,8156,8365,8283,8309], backgroundColor: '#d94f3d', borderRadius: 0 },
-      { label: 'Medium', data: [8231,8313,8290,8448,8239,8448], backgroundColor: '#b5820d', borderRadius: 0 },
-      { label: 'Low',    data: [8287,8338,8448,8418,8428,8346], backgroundColor: '#3a7d5c', borderRadius: 4 }
+    data: { labels: courses, datasets: [
+      { label: 'High',   data: courses.map(c => data.filter(r => r.course === c && r.burnout_level === 'High').length),   backgroundColor: '#d94f3d', borderRadius: 0 },
+      { label: 'Medium', data: courses.map(c => data.filter(r => r.course === c && r.burnout_level === 'Medium').length), backgroundColor: '#b5820d', borderRadius: 0 },
+      { label: 'Low',    data: courses.map(c => data.filter(r => r.course === c && r.burnout_level === 'Low').length),    backgroundColor: '#3a7d5c', borderRadius: 4 }
     ]},
     options: { ...TH, plugins: { ...TH.plugins, tooltip: { ...TH.plugins.tooltip, mode: 'index' } }, scales: { x: { ...TH.scales.x, stacked: true }, y: { ...TH.scales.y, stacked: true } } }
   });
 
+  // 8. CGPA
+  const cgpaBuckets = [[4,5],[5,6],[6,7],[7,8],[8,9],[9,11]];
   new Chart(mk('c_cgpa'), {
     type: 'bar',
-    data: { labels: ['< 5.0','5.0–6.0','6.0–7.0','7.0–8.0','8.0–9.0','9.0–10.0'], datasets: [{ label: 'Students', data: [24863,25024,25163,24816,25117,25017], backgroundColor: ['#d94f3d','#c06030','#b5820d','#3a7d5c','#3a6ea8','#1a2035'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, min: 24500, max: 25400 } } }
+    data: { labels: ['< 5.0','5.0–6.0','6.0–7.0','7.0–8.0','8.0–9.0','9.0–10.0'], datasets: [{ label: 'Students', data: cgpaBuckets.map(([mn,mx]) => countRange('cgpa', mn, mx)), backgroundColor: ['#d94f3d','#c06030','#b5820d','#3a7d5c','#3a6ea8','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } } }
   });
 
+  // 9. STUDY HOURS
   new Chart(mk('c_study'), {
     type: 'bar',
-    data: { labels: ['0–2h','2–4h','4–6h','6–8h','8h+'], datasets: [{ label: 'Students', data: [15697,33172,33596,33403,34132], backgroundColor: ['#3a6ea8','#3a7d5c','#b5820d','#d94f3d','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    data: { labels: ['0–2h','2–4h','4–6h','6–8h','8h+'], datasets: [{ label: 'Students', data: [[0,2],[2,4],[4,6],[6,8],[8,null]].map(([mn,mx]) => countRange('daily_study_hours', mn, mx)), backgroundColor: ['#3a6ea8','#3a7d5c','#b5820d','#d94f3d','#1a2035'], borderRadius: 4, borderSkipped: false }] },
     options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } } }
   });
 
+  // 10. AGE
+  const ages = [17,18,19,20,21,22,23,24,25];
   new Chart(mk('c_age'), {
     type: 'line',
-    data: { labels: [17,18,19,20,21,22,23,24,25], datasets: [{ label: 'Students', data: [16730,16645,16495,16671,16777,16640,16796,16643,16603], borderColor: '#d94f3d', backgroundColor: 'rgba(217,79,61,0.12)', pointBackgroundColor: '#d94f3d', pointBorderColor: '#faf8f4', pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 8, fill: true, tension: 0.4, borderWidth: 2 }] },
+    data: { labels: ages, datasets: [{ label: 'Students', data: ages.map(a => data.filter(r => parseInt(r.age) === a).length), borderColor: '#d94f3d', backgroundColor: 'rgba(217,79,61,0.12)', pointBackgroundColor: '#d94f3d', pointBorderColor: '#faf8f4', pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 8, fill: true, tension: 0.4, borderWidth: 2 }] },
     options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } } }
   });
 
+  // 11. SLEEP HOURS
   new Chart(mk('c_sleep_h'), {
     type: 'doughnut',
-    data: { labels: ['< 5h','5–6h','6–7h','7–8h','8h+'], datasets: [{ data: [28467,30049,30057,30024,31403], backgroundColor: ['#d94f3d','#c06030','#b5820d','#3a7d5c','#3a6ea8'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 8 }] },
+    data: { labels: ['< 5h','5–6h','6–7h','7–8h','8h+'], datasets: [{ data: [[4,5],[5,6],[6,7],[7,8],[8,null]].map(([mn,mx]) => countRange('daily_sleep_hours', mn, mx)), backgroundColor: ['#d94f3d','#c06030','#b5820d','#3a7d5c','#3a6ea8'], borderColor: '#faf8f4', borderWidth: 3, hoverOffset: 8 }] },
     options: { ...TH_DONUT }
   });
 
+  // 12. SCREEN TIME
   new Chart(mk('c_screen'), {
     type: 'bar',
-    data: { labels: ['< 2h','2–4h','4–6h','6–8h','8h+'], datasets: [{ label: 'Students', data: [12940,27317,27266,27034,55443], backgroundColor: ['#3a6ea8','#3a7d5c','#b5820d','#d94f3d','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    data: { labels: ['< 2h','2–4h','4–6h','6–8h','8h+'], datasets: [{ label: 'Students', data: [[1,2],[2,4],[4,6],[6,8],[8,null]].map(([mn,mx]) => countRange('screen_time_hours', mn, mx)), backgroundColor: ['#3a6ea8','#3a7d5c','#b5820d','#d94f3d','#1a2035'], borderRadius: 4, borderSkipped: false }] },
     options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } } }
   });
 
+  // 13. PHYSICAL ACTIVITY
   new Chart(mk('c_phys'), {
     type: 'bar',
-    data: { labels: ['< 1h','1–2h','2h+'], datasets: [{ label: 'Students', data: [71424,74805,3771], backgroundColor: ['#b5820d','#3a7d5c','#d94f3d'], borderRadius: 4, borderSkipped: false }] },
+    data: { labels: ['< 1h','1–2h','2h+'], datasets: [{ label: 'Students', data: [[0,1],[1,2],[2,null]].map(([mn,mx]) => countRange('physical_activity_hours', mn, mx)), backgroundColor: ['#b5820d','#3a7d5c','#d94f3d'], borderRadius: 4, borderSkipped: false }] },
     options: { ...TH, indexAxis: 'y', plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, grid: { color: 'transparent' }, ticks: { color: '#2e3348', font: { family: "'IBM Plex Mono'", size: 12, weight: '600' } } } } }
   });
 
+  // 14. MENTAL HEALTH SCORES
   new Chart(mk('c_mental'), {
     type: 'bar',
-    data: { labels: ['Anxiety','Depression','Academic Pressure','Financial Stress','Social Support'], datasets: [{ label: 'Avg Score (out of 10)', data: [5.49,5.50,5.51,5.50,5.52], backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#c06030','#3a7d5c'], borderRadius: 4, borderSkipped: false, barThickness: 40 }] },
+    data: { labels: ['Anxiety','Depression','Academic Pressure','Financial Stress','Social Support'], datasets: [{ label: 'Avg Score (out of 10)', data: ['anxiety_score','depression_score','academic_pressure_score','financial_stress_score','social_support_score'].map(f => Math.round(avg(f)*100)/100), backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#c06030','#3a7d5c'], borderRadius: 4, borderSkipped: false, barThickness: 40 }] },
     options: { ...TH, plugins: { ...TH.plugins, legend: { display: false }, tooltip: { ...TH.plugins.tooltip, callbacks: { label: ctx => `  Avg Score: ${ctx.raw}/10` } } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, min: 0, max: 10 } } }
   });
 
+  // 15. SOCIAL SUPPORT
+  const scores10 = ['1','2','3','4','5','6','7','8','9','10'];
   new Chart(mk('c_social'), {
     type: 'bar',
-    data: { labels: ['1','2','3','4','5','6','7','8','9','10'], datasets: [{ label: 'Students', data: [14871,14863,14934,15001,14818,15095,15234,15008,15116,15060], backgroundColor: ['#3a6ea8','#3a7a60','#3a7d5c','#4a8a6a','#5a9778','#6aa488','#79b198','#89bea8','#3a6ea8','#1a2035'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false }, tooltip: { ...TH.plugins.tooltip, callbacks: { label: ctx => `  Score ${ctx.label}: ${ctx.raw.toLocaleString()} students` } } }, scales: { x: { ...TH.scales.x, title: { display: true, text: 'Score (1 = Low → 10 = High)', color: '#8a8577', font: { family: "'IBM Plex Mono'", size: 10 } } }, y: { ...TH.scales.y, min: 14500, max: 15500 } } }
+    data: { labels: scores10, datasets: [{ label: 'Students', data: scores10.map(s => countScore('social_support_score', parseInt(s))), backgroundColor: ['#3a6ea8','#3a7a60','#3a7d5c','#4a8a6a','#5a9778','#6aa488','#79b198','#89bea8','#3a6ea8','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false }, tooltip: { ...TH.plugins.tooltip, callbacks: { label: ctx => `  Score ${ctx.label}: ${ctx.raw.toLocaleString()} students` } } }, scales: { x: { ...TH.scales.x, title: { display: true, text: 'Score (1 = Low → 10 = High)', color: '#8a8577', font: { family: "'IBM Plex Mono'", size: 10 } } }, y: { ...TH.scales.y } } }
   });
 
+  // 16. FINANCIAL STRESS
   new Chart(mk('c_finance'), {
     type: 'bar',
-    data: { labels: ['1','2','3','4','5','6','7','8','9','10'], datasets: [{ label: 'Students', data: [14818,15140,14974,15089,14921,15255,15044,15089,14827,14843], backgroundColor: ['#3a7d5c','#5a9070','#79a384','#98b698','#b5c9ac','#b5820d','#c07010','#d94f3d','#c83030','#b52020'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false }, tooltip: { ...TH.plugins.tooltip, callbacks: { label: ctx => `  Score ${ctx.label}: ${ctx.raw.toLocaleString()} students` } } }, scales: { x: { ...TH.scales.x, title: { display: true, text: 'Score (1 = Low Stress → 10 = High Stress)', color: '#8a8577', font: { family: "'IBM Plex Mono'", size: 10 } } }, y: { ...TH.scales.y, min: 14500, max: 15500 } } }
+    data: { labels: scores10, datasets: [{ label: 'Students', data: scores10.map(s => countScore('financial_stress_score', parseInt(s))), backgroundColor: ['#3a7d5c','#5a9070','#79a384','#98b698','#b5c9ac','#b5820d','#c07010','#d94f3d','#c83030','#b52020'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false }, tooltip: { ...TH.plugins.tooltip, callbacks: { label: ctx => `  Score ${ctx.label}: ${ctx.raw.toLocaleString()} students` } } }, scales: { x: { ...TH.scales.x, title: { display: true, text: 'Score (1 = Low Stress → 10 = High Stress)', color: '#8a8577', font: { family: "'IBM Plex Mono'", size: 10 } } }, y: { ...TH.scales.y } } }
   });
 
+  // 17. YEAR ENROLLMENT
   new Chart(mk('c_year'), {
     type: 'bar',
-    data: { labels: ['1st Year','2nd Year','3rd Year','4th Year'], datasets: [{ label: 'Students', data: [37680,37276,37422,37622], backgroundColor: ['#1a2035','#3a6ea8','#3a7d5c','#b5820d'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, indexAxis: 'y', plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x, min: 36800, max: 38000 }, y: { ...TH.scales.y, grid: { color: 'transparent' }, ticks: { color: '#2e3348', font: { family: "'IBM Plex Mono'", size: 11, weight: '600' } } } } }
+    data: { labels: ['1st Year','2nd Year','3rd Year','4th Year'], datasets: [{ label: 'Students', data: years.map(y => count('year', y)), backgroundColor: ['#1a2035','#3a6ea8','#3a7d5c','#b5820d'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, indexAxis: 'y', plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, grid: { color: 'transparent' }, ticks: { color: '#2e3348', font: { family: "'IBM Plex Mono'", size: 11, weight: '600' } } } } }
   });
 
+  // 18. ATTENDANCE
   new Chart(mk('c_attend'), {
     type: 'bar',
-    data: { labels: ['< 60%','60–70%','70–80%','80–90%','90–100%'], datasets: [{ label: 'Students', data: [29824,29754,30293,30144,29985], backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#3a7d5c','#1a2035'], borderRadius: 4, borderSkipped: false }] },
-    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } }, scales: { x: { ...TH.scales.x }, y: { ...TH.scales.y, min: 29000, max: 31000 } } }
+    data: { labels: ['< 60%','60–70%','70–80%','80–90%','90–100%'], datasets: [{ label: 'Students', data: [[50,60],[60,70],[70,80],[80,90],[90,101]].map(([mn,mx]) => countRange('attendance_percentage', mn, mx)), backgroundColor: ['#d94f3d','#b5820d','#3a6ea8','#3a7d5c','#1a2035'], borderRadius: 4, borderSkipped: false }] },
+    options: { ...TH, plugins: { ...TH.plugins, legend: { display: false } } }
   });
+}
 
-});
+document.addEventListener('DOMContentLoaded', () => {});
 
 
 /* ══════════════════════════════════════════════
@@ -1369,19 +1406,17 @@ function linearRegression(x, y) {
 // ✅ COMMIT 5 — renderAnalysis()
 function renderAnalysis(data) {
   if (!data || data.length === 0) return;
+  const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
+  const attend = data.map(r => parseFloat(r.attendance_percentage)).filter(v => !isNaN(v));
 
-  // Use RAW_DATA stats for the large dataset figures displayed in the cards
-  // The variance for cgpa (σ² = 1.73² ≈ 2.9929 ≈ 3.0004) is shown live
-  const cgpaStd = 1.73;
-  const cgpaVar = Math.round(Math.pow(cgpaStd, 2) * 10000) / 10000;
-  const el = document.getElementById('aVariance');
-  if (el) el.textContent = cgpaVar.toFixed(4);
+  const cgpaMin = cgpa.reduce((m,v) => v < m ? v : m, cgpa[0]);
+  const cgpaMax = cgpa.reduce((m,v) => v > m ? v : m, cgpa[0]);
 
-  // attendance variance = 14.41² ≈ 207.6481
-  const attendStd = 14.41;
-  const attendVar = Math.round(Math.pow(attendStd, 2) * 10000) / 10000;
-  const el2 = document.getElementById('aVarianceAttend');
-  if (el2) el2.textContent = attendVar.toFixed(2);
+  function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+  set('aVariance',    variance(cgpa).toFixed(4));
+  set('aVarianceAttend', variance(attend).toFixed(2));
 
   renderInsights(data);
 }
@@ -1389,35 +1424,38 @@ function renderAnalysis(data) {
 // ✅ COMMIT 6 — renderInsights()
 function renderInsights(data) {
   if (!data || data.length === 0) return;
-
-  const scores   = data.map(r => r.score);
-  const study    = data.map(r => r.studyHours);
-  const attend   = data.map(r => r.attendance);
-  const reg      = linearRegression(study, scores);
-  const r1       = pearsonCorr(study, scores);
-  const r2       = pearsonCorr(attend, scores);
-  const passCount = data.filter(r => r.score >= 60).length;
-  const jobCount  = data.filter(r => r.job).length;
-  const avgScore  = mean(scores);
-  const avgStudy  = mean(study);
-
-  document.getElementById('insightsBody').innerHTML = `
+  const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
+  const attend = data.map(r => parseFloat(r.attendance_percentage)).filter(v => !isNaN(v));
+  const cgpaMin = cgpa.reduce((m,v) => v < m ? v : m, cgpa[0]);
+  const cgpaMax = cgpa.reduce((m,v) => v > m ? v : m, cgpa[0]);
+  const r1  = pearsonCorr(study, cgpa);
+  const r2  = pearsonCorr(attend, cgpa);
+  const reg = linearRegression(study, cgpa);
+  const hb  = data.filter(r => r.burnout_level === 'High').length;
+  const hs  = data.filter(r => r.stress_level  === 'High').length;
+  const ps  = data.filter(r => r.sleep_quality  === 'Poor').length;
+  const sc  = data.filter(r => parseFloat(r.screen_time_hours) >= 8).length;
+  const el  = document.getElementById('insightsBody');
+  if (!el) return;
+  el.innerHTML = `
     <p class="insight-text">
-      Across the <span class="highlight">${data.length} sample records</span> in the explorer,
-      the mean final score is <span class="highlight">${avgScore.toFixed(1)} / 100</span> and
-      mean study hours is <span class="highlight">${avgStudy.toFixed(1)} hrs/wk</span>.
+      Across all <span class="highlight">${data.length.toLocaleString()} students</span>,
+      mean CGPA is <span class="highlight">${mean(cgpa).toFixed(2)} / 10.00</span>
+      (min ${cgpaMin.toFixed(2)}, max ${cgpaMax.toFixed(2)}),
+      with variance <span class="highlight">σ² = ${variance(cgpa).toFixed(4)}</span>
+      and std dev <span class="highlight">σ = ${stdDev(cgpa).toFixed(4)}</span>.
       <br><br>
-      Pearson correlation: study hours → score = <span class="highlight">r = ${r1.toFixed(4)}</span>
-      (${interpR(r1)}); attendance → score = <span class="highlight">r = ${r2.toFixed(4)}</span>
-      (${interpR(r2)}). Linear regression yields
-      <span class="highlight">Score = ${reg.slope}·hrs + ${reg.intercept}</span>
-      with R² = <span class="highlight">${reg.rSquared.toFixed(4)}</span>.
+      Pearson r — study hours → CGPA: <span class="highlight">${r1.toFixed(4)}</span> (${interpR(r1)});
+      attendance → CGPA: <span class="highlight">${r2.toFixed(4)}</span> (${interpR(r2)}).
+      Stronger predictor: <span class="highlight">${Math.abs(r1) >= Math.abs(r2) ? 'Study Hours' : 'Attendance %'}</span>.
+      Regression: <span class="highlight">CGPA = ${reg.slope}·hrs + ${reg.intercept}</span>,
+      R² = <span class="highlight">${reg.rSquared.toFixed(4)}</span>.
       <br><br>
-      Pass rate (≥ 60): <span class="highlight">${passCount} / ${data.length} (${Math.round(passCount/data.length*100)}%)</span>.
-      Students with part-time jobs: <span class="highlight">${jobCount} (${Math.round(jobCount/data.length*100)}%)</span>.
-      The large-dataset figures (150,000 students) confirm a CGPA variance of
-      <span class="highlight">σ² ≈ 3.00</span> and attendance variance of
-      <span class="highlight">σ² ≈ 207.65</span> — both consistent with uniform synthetic distributions.
+      Mental health snapshot: <span class="highlight">${hb.toLocaleString()} (${Math.round(hb/data.length*100)}%)</span> high burnout ·
+      <span class="highlight">${hs.toLocaleString()} (${Math.round(hs/data.length*100)}%)</span> high stress ·
+      <span class="highlight">${ps.toLocaleString()} (${Math.round(ps/data.length*100)}%)</span> poor sleep ·
+      <span class="highlight">${sc.toLocaleString()} (${Math.round(sc/data.length*100)}%)</span> screen time 8h+.
     </p>`;
 }
 </script>
