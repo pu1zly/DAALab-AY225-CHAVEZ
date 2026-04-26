@@ -1299,21 +1299,18 @@ function linearRegression(x, y) {
   const rSquared  = Math.round(Math.pow(r,2)*10000)/10000;
   return { slope, intercept, rSquared };
 }
-
-// ✅ COMMIT 5 — renderAnalysis() — all DOM fields now populated
+// ✅ COMMIT 5 — renderAnalysis()
 function renderAnalysis(data) {
   if (!data || data.length === 0) return;
   const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
   const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
   const attend = data.map(r => parseFloat(r.attendance_percentage)).filter(v => !isNaN(v));
-  // Descriptive ✅
   document.getElementById('an').textContent        = data.length.toLocaleString();
   document.getElementById('aMin').textContent      = Math.min(...cgpa).toFixed(2)+' (CGPA)';
   document.getElementById('aMax').textContent      = Math.max(...cgpa).toFixed(2)+' (CGPA)';
   document.getElementById('aRange').textContent    = (Math.max(...cgpa)-Math.min(...cgpa)).toFixed(2);
   document.getElementById('aVariance').textContent = variance(cgpa).toFixed(4);
   document.getElementById('aStdDev').textContent   = stdDev(cgpa).toFixed(4);
-  // Correlation ✅
   const r1=pearsonCorr(study,cgpa), r2=pearsonCorr(attend,cgpa);
   document.getElementById('rPearson').textContent   = r1.toFixed(4);
   document.getElementById('rInterp').textContent    = interpR(r1);
@@ -1321,7 +1318,6 @@ function renderAnalysis(data) {
   document.getElementById('rInterp2').textContent   = interpR(r2);
   document.getElementById('rStronger').textContent  = Math.abs(r1)>=Math.abs(r2)?'Study Hours':'Attendance %';
   document.getElementById('rDirection').textContent = (r1<0&&r2<0)?'Both Negative':(r1>0&&r2>0)?'Both Positive':'Mixed';
-  // Regression ✅
   const reg=linearRegression(study,cgpa);
   const fit=reg.rSquared>=0.9?'Excellent fit':reg.rSquared>=0.7?'Good fit':reg.rSquared>=0.3?'Moderate fit':'Negligible fit';
   document.getElementById('regEquation').textContent  = 'CGPA = '+reg.slope+'·hrs + '+reg.intercept;
@@ -1330,10 +1326,41 @@ function renderAnalysis(data) {
   document.getElementById('regR2').textContent        = reg.rSquared.toFixed(4);
   document.getElementById('regInterp').textContent    = fit;
   document.getElementById('regPredict').textContent   = (reg.slope*15+reg.intercept).toFixed(2)+' (at 15 hrs)';
+  renderInsights(data);
 }
-function renderInsights(data) { console.warn("⚠ Student 2: renderInsights() not implemented yet."); }
-const _o5 = onDataReady;
-function onDataReady() { _o5(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
+// ✅ COMMIT 6 — renderInsights()
+function renderInsights(data) {
+  if (!data || data.length === 0) return;
+  const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
+  const reg    = linearRegression(study, cgpa);
+  const r1     = pearsonCorr(study, cgpa);
+  const r2     = pearsonCorr(data.map(r=>parseFloat(r.attendance_percentage)).filter(v=>!isNaN(v)), cgpa);
+  const hb     = data.filter(r => r.burnout_level === 'High').length;
+  const hs     = data.filter(r => r.stress_level === 'High').length;
+  const ps     = data.filter(r => r.sleep_quality === 'Poor').length;
+  const sc     = data.filter(r => parseFloat(r.screen_time_hours) >= 8).length;
+  document.getElementById('insightsBody').innerHTML = `
+    <p class="insight-text">
+      Across all <span class="highlight">${data.length.toLocaleString()} students</span>,
+      the mean CGPA is <span class="highlight">${mean(cgpa).toFixed(2)} / 10.00</span> with
+      variance <span class="highlight">σ² = ${variance(cgpa).toFixed(4)}</span> and
+      std dev <span class="highlight">σ = ${stdDev(cgpa).toFixed(4)}</span>.
+      <br><br>
+      Pearson r: study hours → CGPA = <span class="highlight">${r1.toFixed(4)}</span>,
+      attendance → CGPA = <span class="highlight">${r2.toFixed(4)}</span> — both
+      <span class="highlight">negligible</span>, confirming this is synthetically generated data.
+      Regression: <span class="highlight">CGPA = ${reg.slope}·hrs + ${reg.intercept}</span>,
+      R² = <span class="highlight">${reg.rSquared.toFixed(4)}</span>.
+      <br><br>
+      Mental health snapshot: <span class="highlight">${hb.toLocaleString()} (${Math.round(hb/data.length*100)}%)</span> high burnout ·
+      <span class="highlight">${hs.toLocaleString()} (${Math.round(hs/data.length*100)}%)</span> high stress ·
+      <span class="highlight">${ps.toLocaleString()} (${Math.round(ps/data.length*100)}%)</span> poor sleep ·
+      <span class="highlight">${sc.toLocaleString()} (${Math.round(sc/data.length*100)}%)</span> screen time 8h+.
+    </p>`;
+}
+const _o6 = onDataReady;
+function onDataReady() { _o6(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
 </script>
 </body>
 </html>
