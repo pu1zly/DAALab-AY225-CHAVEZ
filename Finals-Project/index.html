@@ -1262,8 +1262,7 @@ document.addEventListener('DOMContentLoaded', () => {
  *  4. Divide by arr.length (population variance)
  *  5. Round to 4 decimal places
  */
-// ✅ COMMIT 1 — variance() implemented
-// σ² = Σ(xᵢ − μ)² / n  |  Real result on CGPA: 3.0004
+// ✅ COMMIT 1 — variance()
 function variance(arr) {
   if (!arr || arr.length === 0) return 0;
   const μ = mean(arr);
@@ -1271,20 +1270,25 @@ function variance(arr) {
   return Math.round((sumSq / arr.length) * 10000) / 10000;
 }
 
+// ✅ COMMIT 2 — stdDev()
+// σ = √variance  |  Real result on CGPA: 1.7322
+function stdDev(arr) {
+  return Math.round(Math.sqrt(variance(arr)) * 10000) / 10000;
+}
+
 // ❌ NOT YET
-function stdDev(arr) { throw new Error("Student 2: stdDev() not implemented yet"); }
 function pearsonCorr(x, y) { throw new Error("Student 2: pearsonCorr() not implemented yet"); }
 function linearRegression(x, y) { throw new Error("Student 2: linearRegression() not implemented yet"); }
 
-// renderAnalysis — only Variance σ² field is live
 function renderAnalysis(data) {
   if (!data || data.length === 0) return;
   const cgpa = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
-  document.getElementById('aVariance').textContent = variance(cgpa).toFixed(4); // ✅ LIVE
+  document.getElementById('aVariance').textContent = variance(cgpa).toFixed(4); // ✅
+  document.getElementById('aStdDev').textContent   = stdDev(cgpa).toFixed(4);   // ✅
 }
 function renderInsights(data) { console.warn("⚠ Student 2: renderInsights() not implemented yet."); }
-const _o1 = onDataReady;
-function onDataReady() { _o1(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
+const _o2 = onDataReady;
+function onDataReady() { _o2(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
 </script>
 </body>
 </html>
