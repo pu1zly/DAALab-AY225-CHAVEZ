@@ -1271,24 +1271,48 @@ function variance(arr) {
 }
 
 // ✅ COMMIT 2 — stdDev()
-// σ = √variance  |  Real result on CGPA: 1.7322
 function stdDev(arr) {
   return Math.round(Math.sqrt(variance(arr)) * 10000) / 10000;
 }
 
+// ✅ COMMIT 3 — pearsonCorr()
+// r = Σ((xᵢ−x̄)(yᵢ−ȳ)) / √(Σ(xᵢ−x̄)²·Σ(yᵢ−ȳ)²)
+// Real: study→CGPA=-0.0054  attend→CGPA=-0.0023
+function pearsonCorr(x, y) {
+  if (!x || !y || x.length !== y.length || x.length === 0) return 0;
+  const mx = mean(x), my = mean(y);
+  const num    = x.reduce((acc, xi, i) => acc + (xi - mx) * (y[i] - my), 0);
+  const denomX = x.reduce((acc, xi)    => acc + Math.pow(xi - mx, 2), 0);
+  const denomY = y.reduce((acc, yi)    => acc + Math.pow(yi - my, 2), 0);
+  if (denomX === 0 || denomY === 0) return 0;
+  return Math.round((num / Math.sqrt(denomX * denomY)) * 10000) / 10000;
+}
+function interpR(r) {
+  const a=Math.abs(r), s=a>=0.7?'Strong':a>=0.4?'Moderate':a>=0.1?'Weak':'Negligible';
+  return s+' '+(r>0.001?'Positive':r<-0.001?'Negative':'None');
+}
+
 // ❌ NOT YET
-function pearsonCorr(x, y) { throw new Error("Student 2: pearsonCorr() not implemented yet"); }
 function linearRegression(x, y) { throw new Error("Student 2: linearRegression() not implemented yet"); }
 
 function renderAnalysis(data) {
   if (!data || data.length === 0) return;
-  const cgpa = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
-  document.getElementById('aVariance').textContent = variance(cgpa).toFixed(4); // ✅
-  document.getElementById('aStdDev').textContent   = stdDev(cgpa).toFixed(4);   // ✅
+  const cgpa   = data.map(r => parseFloat(r.cgpa)).filter(v => !isNaN(v));
+  const study  = data.map(r => parseFloat(r.daily_study_hours)).filter(v => !isNaN(v));
+  const attend = data.map(r => parseFloat(r.attendance_percentage)).filter(v => !isNaN(v));
+  document.getElementById('aVariance').textContent  = variance(cgpa).toFixed(4);  // ✅
+  document.getElementById('aStdDev').textContent    = stdDev(cgpa).toFixed(4);    // ✅
+  const r1=pearsonCorr(study,cgpa), r2=pearsonCorr(attend,cgpa);
+  document.getElementById('rPearson').textContent   = r1.toFixed(4);              // ✅
+  document.getElementById('rInterp').textContent    = interpR(r1);                // ✅
+  document.getElementById('rPearson2').textContent  = r2.toFixed(4);              // ✅
+  document.getElementById('rInterp2').textContent   = interpR(r2);                // ✅
+  document.getElementById('rStronger').textContent  = Math.abs(r1)>=Math.abs(r2)?'Study Hours':'Attendance %'; // ✅
+  document.getElementById('rDirection').textContent = (r1<0&&r2<0)?'Both Negative':(r1>0&&r2>0)?'Both Positive':'Mixed'; // ✅
 }
 function renderInsights(data) { console.warn("⚠ Student 2: renderInsights() not implemented yet."); }
-const _o2 = onDataReady;
-function onDataReady() { _o2(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
+const _o3 = onDataReady;
+function onDataReady() { _o3(); if (window.DS && window.DS.length > 0) renderAnalysis(window.DS); }
 </script>
 </body>
 </html>
